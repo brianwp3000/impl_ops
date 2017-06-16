@@ -1,7 +1,11 @@
-
 #[macro_export]
 macro_rules! impl_op {
     (($lhs:path) $op:tt ($rhs:path) = ($out:path), $fn:expr) => (_parse_binary_op!($op, $lhs, $rhs, $out, $fn););
+}
+
+#[macro_export]
+macro_rules! impl_op_commutative {
+    (($lhs:path) $op:tt ($rhs:path) = ($out:path), $fn:expr) => (_parse_binary_op!($op, [commutative], $lhs, $rhs, $out, $fn););
 }
 
 #[macro_export]
@@ -52,5 +56,40 @@ macro_rules! _impl_binary_op_internal {
                 $fn(self, rhs)
             }
         }
-    )
+    );
+    ($ops_trait:ident, $ops_fn:ident, [commutative], $lhs:ty, $rhs:ty, $out:ty, $fn:expr) => (
+        _impl_binary_op_internal!($ops_trait, $ops_fn, $lhs, $rhs, $out, $fn);
+
+        impl ops::$ops_trait<$lhs> for $rhs {
+            type Output = $out;
+
+            fn $ops_fn(self, rhs: $lhs) -> Self::Output {
+                $fn(&rhs, &self)
+            }
+        }
+
+        impl<'a> ops::$ops_trait<&'a $lhs> for $rhs {
+            type Output = $out;
+
+            fn $ops_fn(self, rhs: &'a $lhs) -> Self::Output {
+                $fn(rhs, &self)
+            }
+        }
+
+        impl<'a> ops::$ops_trait<$lhs> for &'a $rhs {
+            type Output = $out;
+
+            fn $ops_fn(self, rhs: $lhs) -> Self::Output {
+                $fn(&rhs, self)
+            }
+        }
+
+        impl<'a> ops::$ops_trait<&'a $lhs> for &'a $rhs {
+            type Output = $out;
+
+            fn $ops_fn(self, rhs: &'a $lhs) -> Self::Output {
+                $fn(rhs, self)
+            }
+        }
+    );
 }
