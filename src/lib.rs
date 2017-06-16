@@ -1,9 +1,6 @@
-mod traits;
-pub use self::traits::*;
 
 #[macro_export]
 macro_rules! impl_op {
-    (($lhs:path) $op:tt ($rhs:path) = ($out:path)) => (_parse_binary_op!($op, $lhs, $rhs, $out););
     (($lhs:path) $op:tt ($rhs:path) = ($out:path), $fn:expr) => (_parse_binary_op!($op, $lhs, $rhs, $out, $fn););
 }
 
@@ -23,7 +20,6 @@ macro_rules! _parse_binary_op {
 
 #[macro_export]
 macro_rules! _impl_binary_op_internal {
-    ($ops_trait:ident, $ops_fn:ident, $lhs:ty, $rhs:ty, $out:ty) => (_impl_binary_op_internal!($ops_trait, $ops_fn, $lhs, $rhs, $out, impl_ops::$ops_trait::$ops_fn););
     ($ops_trait:ident, $ops_fn:ident, $lhs:ty, $rhs:ty, $out:ty, $fn:expr) => (
         impl ops::$ops_trait<$rhs> for $lhs {
             type Output = $out;
