@@ -23,11 +23,11 @@ fn add_point_f32(lhs: &Point, rhs: &f32) -> String {
     format!("{:?} + {:?}", lhs, rhs)
 }
 
-impl_op!((Point) + (Point) = (Point), add_points);
-impl_op!((Point) + (i32) = (String), |a, b| format!("{:?} + {:?}", a, b));
+impl_op!((Point) + (Point) -> (Point), add_points);
+impl_op!((Point) + (i32) -> (String), |a, b| format!("{:?} + {:?}", a, b));
 
-impl_op_commutative!((Point) + (f32) = (String), add_point_f32);
-impl_op_commutative!((Point) + (bool) = (String), |a, b| format!("{:?} + {:?}", a, b));
+impl_op_commutative!((Point) + (f32) -> (String), add_point_f32);
+impl_op_commutative!((Point) + (bool) -> (String), |a, b| format!("{:?} + {:?}", a, b));
 
 #[test]
 fn function() {

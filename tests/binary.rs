@@ -12,19 +12,19 @@ struct Point {
     y: i32,
 }
 
-impl_op!((Point) + (Point) = (String), |a, b| format!("{:?} + {:?}", a, b));
-impl_op!((Point) - (Point) = (String), |a, b| format!("{:?} - {:?}", a, b));
-impl_op!((Point) * (Point) = (String), |a, b| format!("{:?} * {:?}", a, b));
-impl_op!((Point) / (Point) = (String), |a, b| format!("{:?} / {:?}", a, b));
+impl_op!((Point) + (Point) -> (String), |a, b| format!("{:?} + {:?}", a, b));
+impl_op!((Point) - (Point) -> (String), |a, b| format!("{:?} - {:?}", a, b));
+impl_op!((Point) * (Point) -> (String), |a, b| format!("{:?} * {:?}", a, b));
+impl_op!((Point) / (Point) -> (String), |a, b| format!("{:?} / {:?}", a, b));
 
-impl_op!((Point) & (Point) = (String), |a, b| format!("{:?} & {:?}", a, b));
-impl_op!((Point) | (Point) = (String), |a, b| format!("{:?} | {:?}", a, b));
-impl_op!((Point) ^ (Point) = (String), |a, b| format!("{:?} ^ {:?}", a, b));
+impl_op!((Point) & (Point) -> (String), |a, b| format!("{:?} & {:?}", a, b));
+impl_op!((Point) | (Point) -> (String), |a, b| format!("{:?} | {:?}", a, b));
+impl_op!((Point) ^ (Point) -> (String), |a, b| format!("{:?} ^ {:?}", a, b));
 
-impl_op!((Point) % (Point) = (String), |a, b| format!("{:?} % {:?}", a, b));
+impl_op!((Point) % (Point) -> (String), |a, b| format!("{:?} % {:?}", a, b));
 
-impl_op!((Point) << (Point) = (String), |a, b| format!("{:?} << {:?}", a, b));
-impl_op!((Point) >> (Point) = (String), |a, b| format!("{:?} >> {:?}", a, b));
+impl_op!((Point) << (Point) -> (String), |a, b| format!("{:?} << {:?}", a, b));
+impl_op!((Point) >> (Point) -> (String), |a, b| format!("{:?} >> {:?}", a, b));
 
 macro_rules! impl_op_test {
     ($test:ident, ($lhs:expr) $op:tt ($rhs:expr) = ($expected:expr)) => (
