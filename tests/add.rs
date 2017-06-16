@@ -28,13 +28,6 @@ impl impl_ops::Add<i32> for Point {
     }
 }
 
-impl impl_ops::Add<f32> for Point {
-    type Output = String;
-    fn add(lhs: &Point, rhs: &f32) -> Self::Output {
-        format!("{:?} {:?}", lhs, rhs)
-    }
-}
-
 fn add_vec_point(lhs: &std::vec::Vec<i32>, rhs: &Point) -> String {
     format!("{:?} {:?}", lhs, rhs)
 }
@@ -42,6 +35,7 @@ fn add_vec_point(lhs: &std::vec::Vec<i32>, rhs: &Point) -> String {
 impl_op!((Point) + (Point) = (Point));
 impl_op!((Point) + (i32) = (String));
 impl_op!((std::vec::Vec<i32>) + (Point) = (String), add_vec_point);
+impl_op!((String) + (Point) = (String), |a, b| format!("{:?} + {:?}", a, b));
 
 #[test]
 fn add() {
@@ -60,7 +54,7 @@ fn add() {
 }
 
 #[test]
-fn add_rhs_out() {
+fn rhs_out() {
     let lhs = Point {x: 1, y: 2};
     let rhs = 3;
     let expected = format!("{:?} {:?}", lhs, rhs);
@@ -76,10 +70,26 @@ fn add_rhs_out() {
 }
 
 #[test]
-fn vec_i32_str() {
+fn mod_fn() {
     let lhs = vec!(1, 2, 3);
     let rhs = Point { x: 1, y: 2 };
     let expected = format!("{:?} {:?}", lhs, rhs);
+
+    let actual = lhs.clone() + rhs.clone();
+    assert_eq!(expected, actual, "owned <op> owned");
+    let actual = lhs.clone() + &rhs;
+    assert_eq!(expected, actual, "owned <op> borrowed");
+    let actual = &lhs + rhs.clone();
+    assert_eq!(expected, actual, "borrowed <op> owned");
+    let actual = &lhs + &rhs;
+    assert_eq!(expected, actual, "borrowed <op> borrowed");
+}
+
+#[test]
+fn closure() {
+    let lhs = String::from("hello");
+    let rhs = Point { x: 1, y: 2 };
+    let expected = format!("{:?} + {:?}", lhs, rhs);
 
     let actual = lhs.clone() + rhs.clone();
     assert_eq!(expected, actual, "owned <op> owned");
