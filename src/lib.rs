@@ -24,10 +24,10 @@ macro_rules! _parse_binary_op {
     (-, $($t:tt)+) => (_impl_binary_op_internal!(Sub, sub, $($t)+););
     (*, $($t:tt)+) => (_impl_binary_op_internal!(Mul, mul, $($t)+););
     (/, $($t:tt)+) => (_impl_binary_op_internal!(Div, div, $($t)+););
+    (%, $($t:tt)+) => (_impl_binary_op_internal!(Rem, rem, $($t)+););
     (&, $($t:tt)+) => (_impl_binary_op_internal!(BitAnd, bitand, $($t)+););
     (|, $($t:tt)+) => (_impl_binary_op_internal!(BitOr, bitor, $($t)+););
     (^, $($t:tt)+) => (_impl_binary_op_internal!(BitXor, bitxor, $($t)+););
-    (%, $($t:tt)+) => (_impl_binary_op_internal!(Rem, rem, $($t)+););
     (<<, $($t:tt)+) => (_impl_binary_op_internal!(Shl, shl, $($t)+););
     (>>, $($t:tt)+) => (_impl_binary_op_internal!(Shr, shr, $($t)+););
 }
