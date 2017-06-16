@@ -4,13 +4,18 @@ macro_rules! impl_op {
 }
 
 #[macro_export]
+macro_rules! impl_op_commutative {
+    (($lhs:path) $op:tt ($rhs:path) -> ($out:path), $fn:expr) => (_parse_binary_op!($op, [commutative], $lhs, $rhs, $out, $fn););
+}
+
+#[macro_export]
 macro_rules! impl_op_closure {
     ($op:tt |$lhs_i:ident : &$lhs:path, $rhs_i:ident : &$rhs:path| -> $out:path {$body:expr}) => (_parse_binary_op!($op, $lhs, $rhs, $out, |$lhs_i : &$lhs, $rhs_i : &$rhs| -> $out {$body}););
 }
 
 #[macro_export]
-macro_rules! impl_op_commutative {
-    (($lhs:path) $op:tt ($rhs:path) -> ($out:path), $fn:expr) => (_parse_binary_op!($op, [commutative], $lhs, $rhs, $out, $fn););
+macro_rules! impl_op_closure_commutative {
+    ($op:tt |$lhs_i:ident : &$lhs:path, $rhs_i:ident : &$rhs:path| -> $out:path {$body:expr}) => (_parse_binary_op!($op, [commutative], $lhs, $rhs, $out, |$lhs_i : &$lhs, $rhs_i : &$rhs| -> $out {$body}););
 }
 
 #[macro_export]
