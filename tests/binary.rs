@@ -9,43 +9,49 @@ use std::ops;
 mod kong {
     #[derive(Clone, Copy, Debug, Default, PartialEq)]
     pub struct Donkey {
-        bananas: i32,
+        pub bananas: i32,
     }
 
     #[derive(Clone, Copy, Debug, Default, PartialEq)]
     pub struct Diddy<T> {
-        bananas: T,
+        pub bananas: T,
     }
 }
 
-impl_op!((kong::Donkey) + (kong::Donkey) -> (String), |a, b| format!("{:?} + {:?}", a, b));
-impl_op!((kong::Donkey) - (kong::Donkey) -> (String), |a, b| format!("{:?} - {:?}", a, b));
-impl_op!((kong::Donkey) * (kong::Donkey) -> (String), |a, b| format!("{:?} * {:?}", a, b));
-impl_op!((kong::Donkey) / (kong::Donkey) -> (String), |a, b| format!("{:?} / {:?}", a, b));
-impl_op!((kong::Donkey) % (kong::Donkey) -> (String), |a, b| format!("{:?} % {:?}", a, b));
+impl_op!(+ |a: &kong::Donkey, b: &kong::Donkey| -> String {
+    let total_bananas = a.bananas + b.bananas;
+    format!("{:?} + {:?} -> {:?}", a, b, total_bananas)
+});
+impl_op!(- |a: &kong::Donkey, b: &kong::Donkey| -> String {format!("{:?} - {:?}", a, b)});
+impl_op!(* |a: &kong::Donkey, b: &kong::Donkey| -> String {format!("{:?} * {:?}", a, b)});
+impl_op!(/ |a: &kong::Donkey, b: &kong::Donkey| -> String {format!("{:?} / {:?}", a, b)});
+impl_op!(% |a: &kong::Donkey, b: &kong::Donkey| -> String {format!("{:?} % {:?}", a, b)});
 
-impl_op!((kong::Donkey) & (kong::Donkey) -> (String), |a, b| format!("{:?} & {:?}", a, b));
-impl_op!((kong::Donkey) | (kong::Donkey) -> (String), |a, b| format!("{:?} | {:?}", a, b));
-impl_op!((kong::Donkey) ^ (kong::Donkey) -> (String), |a, b| format!("{:?} ^ {:?}", a, b));
+impl_op!(& |a: &kong::Donkey, b: &kong::Donkey| -> String {format!("{:?} & {:?}", a, b)});
+impl_op!(| |a: &kong::Donkey, b: &kong::Donkey| -> String {format!("{:?} | {:?}", a, b)});
+impl_op!(^ |a: &kong::Donkey, b: &kong::Donkey| -> String {format!("{:?} ^ {:?}", a, b)});
 
-impl_op!((kong::Donkey) << (kong::Donkey) -> (String), |a, b| format!("{:?} << {:?}", a, b));
-impl_op!((kong::Donkey) >> (kong::Donkey) -> (String), |a, b| format!("{:?} >> {:?}", a, b));
+impl_op!(<< |a: &kong::Donkey, b: &kong::Donkey| -> String {format!("{:?} << {:?}", a, b)});
+impl_op!(>> |a: &kong::Donkey, b: &kong::Donkey| -> String {format!("{:?} >> {:?}", a, b)});
 
-impl_op_commutative!((kong::Donkey) + (kong::Diddy<i32>) -> (String), |a, b| format!("{:?} + {:?}", a, b));
-impl_op_commutative!((kong::Donkey) - (kong::Diddy<i32>) -> (String), |a, b| format!("{:?} - {:?}", a, b));
-impl_op_commutative!((kong::Donkey) * (kong::Diddy<i32>) -> (String), |a, b| format!("{:?} * {:?}", a, b));
-impl_op_commutative!((kong::Donkey) / (kong::Diddy<i32>) -> (String), |a, b| format!("{:?} / {:?}", a, b));
-impl_op_commutative!((kong::Donkey) % (kong::Diddy<i32>) -> (String), |a, b| format!("{:?} % {:?}", a, b));
+impl_op_commutative!(+ |a: &kong::Donkey, b: &kong::Diddy<i32>| -> String {
+    let total_bananas = a.bananas + b.bananas;
+    format!("{:?} + {:?} -> {:?}", a, b, total_bananas)
+});
+impl_op_commutative!(- |a: &kong::Donkey, b: &kong::Diddy<i32>| -> String {format!("{:?} - {:?}", a, b)});
+impl_op_commutative!(* |a: &kong::Donkey, b: &kong::Diddy<i32>| -> String {format!("{:?} * {:?}", a, b)});
+impl_op_commutative!(/ |a: &kong::Donkey, b: &kong::Diddy<i32>| -> String {format!("{:?} / {:?}", a, b)});
+impl_op_commutative!(% |a: &kong::Donkey, b: &kong::Diddy<i32>| -> String {format!("{:?} % {:?}", a, b)});
 
-impl_op_commutative!((kong::Donkey) & (kong::Diddy<i32>) -> (String), |a, b| format!("{:?} & {:?}", a, b));
-impl_op_commutative!((kong::Donkey) | (kong::Diddy<i32>) -> (String), |a, b| format!("{:?} | {:?}", a, b));
-impl_op_commutative!((kong::Donkey) ^ (kong::Diddy<i32>) -> (String), |a, b| format!("{:?} ^ {:?}", a, b));
+impl_op_commutative!(& |a: &kong::Donkey, b: &kong::Diddy<i32>| -> String {format!("{:?} & {:?}", a, b)});
+impl_op_commutative!(| |a: &kong::Donkey, b: &kong::Diddy<i32>| -> String {format!("{:?} | {:?}", a, b)});
+impl_op_commutative!(^ |a: &kong::Donkey, b: &kong::Diddy<i32>| -> String {format!("{:?} ^ {:?}", a, b)});
 
-impl_op_commutative!((kong::Donkey) << (kong::Diddy<i32>) -> (String), |a, b| format!("{:?} << {:?}", a, b));
-impl_op_commutative!((kong::Donkey) >> (kong::Diddy<i32>) -> (String), |a, b| format!("{:?} >> {:?}", a, b));
+impl_op_commutative!(<< |a: &kong::Donkey, b: &kong::Diddy<i32>| -> String {format!("{:?} << {:?}", a, b)});
+impl_op_commutative!(>> |a: &kong::Donkey, b: &kong::Diddy<i32>| -> String {format!("{:?} >> {:?}", a, b)});
 
 macro_rules! impl_op_test {
-    ($test:ident, ($lhs:expr) $op:tt ($rhs:expr) = ($expected:expr)) => (
+    ($test:ident, ($lhs:expr) $op:tt ($rhs:expr) -> ($expected:expr)) => (
         #[test]
         fn $test() {
             let lhs = $lhs;
@@ -65,7 +71,7 @@ macro_rules! impl_op_test {
 }
 
 macro_rules! impl_op_test_commutative {
-    ($test:ident, ($lhs:expr) $op:tt ($rhs:expr) = ($expected:expr)) => (
+    ($test:ident, ($lhs:expr) $op:tt ($rhs:expr) -> ($expected:expr)) => (
         #[test]
         fn $test() {
             let lhs = $lhs;
@@ -93,27 +99,27 @@ macro_rules! impl_op_test_commutative {
     );
 }
 
-impl_op_test!(add, (kong::Donkey::default()) + (kong::Donkey::default()) = (format!("{:?} + {:?}", kong::Donkey::default(), kong::Donkey::default())));
-impl_op_test!(sub, (kong::Donkey::default()) - (kong::Donkey::default()) = (format!("{:?} - {:?}", kong::Donkey::default(), kong::Donkey::default())));
-impl_op_test!(mul, (kong::Donkey::default()) * (kong::Donkey::default()) = (format!("{:?} * {:?}", kong::Donkey::default(), kong::Donkey::default())));
-impl_op_test!(div, (kong::Donkey::default()) / (kong::Donkey::default()) = (format!("{:?} / {:?}", kong::Donkey::default(), kong::Donkey::default())));
-impl_op_test!(rem, (kong::Donkey::default()) % (kong::Donkey::default()) = (format!("{:?} % {:?}", kong::Donkey::default(), kong::Donkey::default())));
-impl_op_test!(bitand, (kong::Donkey::default()) & (kong::Donkey::default()) = (format!("{:?} & {:?}", kong::Donkey::default(), kong::Donkey::default())));
-impl_op_test!(bitor, (kong::Donkey::default()) | (kong::Donkey::default()) = (format!("{:?} | {:?}", kong::Donkey::default(), kong::Donkey::default())));
-impl_op_test!(bitxor, (kong::Donkey::default()) ^ (kong::Donkey::default()) = (format!("{:?} ^ {:?}", kong::Donkey::default(), kong::Donkey::default())));
-impl_op_test!(shl, (kong::Donkey::default()) << (kong::Donkey::default()) = (format!("{:?} << {:?}", kong::Donkey::default(), kong::Donkey::default())));
-impl_op_test!(shr, (kong::Donkey::default()) >> (kong::Donkey::default()) = (format!("{:?} >> {:?}", kong::Donkey::default(), kong::Donkey::default())));
+impl_op_test!(add, (kong::Donkey::default()) + (kong::Donkey::default()) -> (format!("{:?} + {:?} -> {:?}", kong::Donkey::default(), kong::Donkey::default(), 0)));
+impl_op_test!(sub, (kong::Donkey::default()) - (kong::Donkey::default()) -> (format!("{:?} - {:?}", kong::Donkey::default(), kong::Donkey::default())));
+impl_op_test!(mul, (kong::Donkey::default()) * (kong::Donkey::default()) -> (format!("{:?} * {:?}", kong::Donkey::default(), kong::Donkey::default())));
+impl_op_test!(div, (kong::Donkey::default()) / (kong::Donkey::default()) -> (format!("{:?} / {:?}", kong::Donkey::default(), kong::Donkey::default())));
+impl_op_test!(rem, (kong::Donkey::default()) % (kong::Donkey::default()) -> (format!("{:?} % {:?}", kong::Donkey::default(), kong::Donkey::default())));
+impl_op_test!(bitand, (kong::Donkey::default()) & (kong::Donkey::default()) -> (format!("{:?} & {:?}", kong::Donkey::default(), kong::Donkey::default())));
+impl_op_test!(bitor, (kong::Donkey::default()) | (kong::Donkey::default()) -> (format!("{:?} | {:?}", kong::Donkey::default(), kong::Donkey::default())));
+impl_op_test!(bitxor, (kong::Donkey::default()) ^ (kong::Donkey::default()) -> (format!("{:?} ^ {:?}", kong::Donkey::default(), kong::Donkey::default())));
+impl_op_test!(shl, (kong::Donkey::default()) << (kong::Donkey::default()) -> (format!("{:?} << {:?}", kong::Donkey::default(), kong::Donkey::default())));
+impl_op_test!(shr, (kong::Donkey::default()) >> (kong::Donkey::default()) -> (format!("{:?} >> {:?}", kong::Donkey::default(), kong::Donkey::default())));
 
-impl_op_test_commutative!(add_commutative, (kong::Donkey::default()) + (kong::Diddy::<i32>::default()) = (format!("{:?} + {:?}", kong::Donkey::default(), kong::Diddy::<i32>::default())));
-impl_op_test_commutative!(sub_commutative, (kong::Donkey::default()) - (kong::Diddy::<i32>::default()) = (format!("{:?} - {:?}", kong::Donkey::default(), kong::Diddy::<i32>::default())));
-impl_op_test_commutative!(mul_commutative, (kong::Donkey::default()) * (kong::Diddy::<i32>::default()) = (format!("{:?} * {:?}", kong::Donkey::default(), kong::Diddy::<i32>::default())));
-impl_op_test_commutative!(div_commutative, (kong::Donkey::default()) / (kong::Diddy::<i32>::default()) = (format!("{:?} / {:?}", kong::Donkey::default(), kong::Diddy::<i32>::default())));
-impl_op_test_commutative!(rem_commutative, (kong::Donkey::default()) % (kong::Diddy::<i32>::default()) = (format!("{:?} % {:?}", kong::Donkey::default(), kong::Diddy::<i32>::default())));
-impl_op_test_commutative!(bitand_commutative, (kong::Donkey::default()) & (kong::Diddy::<i32>::default()) = (format!("{:?} & {:?}", kong::Donkey::default(), kong::Diddy::<i32>::default())));
-impl_op_test_commutative!(bitor_commutative, (kong::Donkey::default()) | (kong::Diddy::<i32>::default()) = (format!("{:?} | {:?}", kong::Donkey::default(), kong::Diddy::<i32>::default())));
-impl_op_test_commutative!(bitxor_commutative, (kong::Donkey::default()) ^ (kong::Diddy::<i32>::default()) = (format!("{:?} ^ {:?}", kong::Donkey::default(), kong::Diddy::<i32>::default())));
-impl_op_test_commutative!(shl_commutative, (kong::Donkey::default()) << (kong::Diddy::<i32>::default()) = (format!("{:?} << {:?}", kong::Donkey::default(), kong::Diddy::<i32>::default())));
-impl_op_test_commutative!(shr_commutative, (kong::Donkey::default()) >> (kong::Diddy::<i32>::default()) = (format!("{:?} >> {:?}", kong::Donkey::default(), kong::Diddy::<i32>::default())));
+impl_op_test_commutative!(add_commutative, (kong::Donkey::default()) + (kong::Diddy::<i32>::default()) -> (format!("{:?} + {:?} -> {:?}", kong::Donkey::default(), kong::Diddy::<i32>::default(), 0)));
+impl_op_test_commutative!(sub_commutative, (kong::Donkey::default()) - (kong::Diddy::<i32>::default()) -> (format!("{:?} - {:?}", kong::Donkey::default(), kong::Diddy::<i32>::default())));
+impl_op_test_commutative!(mul_commutative, (kong::Donkey::default()) * (kong::Diddy::<i32>::default()) -> (format!("{:?} * {:?}", kong::Donkey::default(), kong::Diddy::<i32>::default())));
+impl_op_test_commutative!(div_commutative, (kong::Donkey::default()) / (kong::Diddy::<i32>::default()) -> (format!("{:?} / {:?}", kong::Donkey::default(), kong::Diddy::<i32>::default())));
+impl_op_test_commutative!(rem_commutative, (kong::Donkey::default()) % (kong::Diddy::<i32>::default()) -> (format!("{:?} % {:?}", kong::Donkey::default(), kong::Diddy::<i32>::default())));
+impl_op_test_commutative!(bitand_commutative, (kong::Donkey::default()) & (kong::Diddy::<i32>::default()) -> (format!("{:?} & {:?}", kong::Donkey::default(), kong::Diddy::<i32>::default())));
+impl_op_test_commutative!(bitor_commutative, (kong::Donkey::default()) | (kong::Diddy::<i32>::default()) -> (format!("{:?} | {:?}", kong::Donkey::default(), kong::Diddy::<i32>::default())));
+impl_op_test_commutative!(bitxor_commutative, (kong::Donkey::default()) ^ (kong::Diddy::<i32>::default()) -> (format!("{:?} ^ {:?}", kong::Donkey::default(), kong::Diddy::<i32>::default())));
+impl_op_test_commutative!(shl_commutative, (kong::Donkey::default()) << (kong::Diddy::<i32>::default()) -> (format!("{:?} << {:?}", kong::Donkey::default(), kong::Diddy::<i32>::default())));
+impl_op_test_commutative!(shr_commutative, (kong::Donkey::default()) >> (kong::Diddy::<i32>::default()) -> (format!("{:?} >> {:?}", kong::Donkey::default(), kong::Diddy::<i32>::default())));
 
 
 
