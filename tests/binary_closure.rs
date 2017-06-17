@@ -18,7 +18,11 @@ mod kong {
     }
 }
 
-impl_op_closure!(+ |a: &kong::Donkey, b: &kong::Donkey| -> String {format!("{:?} + {:?}", a, b)});
+impl_op_closure!(+ |a: &kong::Donkey, b: &kong::Donkey| -> String {
+    let lhs = a;
+    let rhs = b;
+    format!("{:?} + {:?}", lhs, rhs)
+});
 impl_op_closure!(- |a: &kong::Donkey, b: &kong::Donkey| -> String {format!("{:?} - {:?}", a, b)});
 impl_op_closure!(* |a: &kong::Donkey, b: &kong::Donkey| -> String {format!("{:?} * {:?}", a, b)});
 impl_op_closure!(/ |a: &kong::Donkey, b: &kong::Donkey| -> String {format!("{:?} / {:?}", a, b)});
