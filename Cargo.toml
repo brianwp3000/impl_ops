@@ -1,6 +1,8 @@
 [package]
 name = "impl_ops"
 version = "0.1.0"
-authors = ["bwpor"]
+authors = ["Brian Porter <brianwp3000@gmail.com>"]
+license="MIT"
+description = "Macros for easy operator overloading."
 
 [dependencies]
