@@ -16,7 +16,9 @@ macro_rules! impl_op {
 #[macro_export]
 macro_rules! impl_op_commutative {
     ($op:tt |$lhs_i:ident : &$lhs:path, $rhs_i:ident : &$rhs:path| -> $out:path $body:block) => (_parse_binary_op!($op, [commutative], &$lhs, &$rhs, $out, |$lhs_i : &$lhs, $rhs_i : &$rhs| -> $out {$body}););
-}
+    ($op:tt |$lhs_i:ident : &$lhs:path, $rhs_i:ident : $rhs:path| -> $out:path $body:block) => (_parse_binary_op!($op, [commutative], &$lhs, $rhs, $out, |$lhs_i : &$lhs, $rhs_i : $rhs| -> $out {$body}););
+    ($op:tt |$lhs_i:ident : $lhs:path, $rhs_i:ident : &$rhs:path| -> $out:path $body:block) => (_parse_binary_op!($op, [commutative], $lhs, &$rhs, $out, |$lhs_i : $lhs, $rhs_i : &$rhs| -> $out {$body}););
+    ($op:tt |$lhs_i:ident : $lhs:path, $rhs_i:ident : $rhs:path| -> $out:path $body:block) => (_parse_binary_op!($op, [commutative], $lhs, $rhs, $out, |$lhs_i : $lhs, $rhs_i : $rhs| -> $out {$body}););}
 
 #[macro_export]
 macro_rules! _parse_binary_op {
@@ -74,37 +76,27 @@ macro_rules! _impl_binary_op_internal {
     ($ops_trait:ident, $ops_fn:ident, [commutative], &$lhs:ty, &$rhs:ty, $out:ty, $fn:expr) => (
         _impl_binary_op_internal!($ops_trait, $ops_fn, &$lhs, &$rhs, $out, $fn);
 
-        impl ops::$ops_trait<$lhs> for $rhs {
-            type Output = $out;
+        _impl_binary_op_owned_owned!($ops_trait, $ops_fn, $rhs, $lhs, $out, lhs, rhs, {$fn(&rhs, &lhs)});
+        _impl_binary_op_owned_borrowed!($ops_trait, $ops_fn, $rhs, $lhs, $out, lhs, rhs, {$fn(rhs, &lhs)});
+        _impl_binary_op_borrowed_owned!($ops_trait, $ops_fn, $rhs, $lhs, $out, lhs, rhs, {$fn(&rhs, lhs)});
+        _impl_binary_op_borrowed_borrowed!($ops_trait, $ops_fn, $rhs, $lhs, $out, lhs, rhs, {$fn(rhs, lhs)});
+    );
+    ($ops_trait:ident, $ops_fn:ident, [commutative], &$lhs:ty, $rhs:ty, $out:ty, $fn:expr) => (
+        _impl_binary_op_internal!($ops_trait, $ops_fn, &$lhs, $rhs, $out, $fn);
 
-            fn $ops_fn(self, rhs: $lhs) -> Self::Output {
-                $fn(&rhs, &self)
-            }
-        }
+        _impl_binary_op_owned_owned!($ops_trait, $ops_fn, $rhs, $lhs, $out, lhs, rhs, {$fn(&rhs, lhs)});
+        _impl_binary_op_owned_borrowed!($ops_trait, $ops_fn, $rhs, $lhs, $out, lhs, rhs, {$fn(rhs, lhs)});
+    );
+    ($ops_trait:ident, $ops_fn:ident, [commutative], $lhs:ty, &$rhs:ty, $out:ty, $fn:expr) => (
+        _impl_binary_op_internal!($ops_trait, $ops_fn, $lhs, &$rhs, $out, $fn);
 
-        impl<'a> ops::$ops_trait<&'a $lhs> for $rhs {
-            type Output = $out;
+        _impl_binary_op_owned_owned!($ops_trait, $ops_fn, $rhs, $lhs, $out, lhs, rhs, {$fn(rhs, &lhs)});
+        _impl_binary_op_borrowed_owned!($ops_trait, $ops_fn, $rhs, $lhs, $out, lhs, rhs, {$fn(rhs, lhs)});
+    );
+    ($ops_trait:ident, $ops_fn:ident, [commutative], $lhs:ty, $rhs:ty, $out:ty, $fn:expr) => (
+        _impl_binary_op_internal!($ops_trait, $ops_fn, $lhs, $rhs, $out, $fn);
 
-            fn $ops_fn(self, rhs: &'a $lhs) -> Self::Output {
-                $fn(rhs, &self)
-            }
-        }
-
-        impl<'a> ops::$ops_trait<$lhs> for &'a $rhs {
-            type Output = $out;
-
-            fn $ops_fn(self, rhs: $lhs) -> Self::Output {
-                $fn(&rhs, self)
-            }
-        }
-
-        impl<'a> ops::$ops_trait<&'a $lhs> for &'a $rhs {
-            type Output = $out;
-
-            fn $ops_fn(self, rhs: &'a $lhs) -> Self::Output {
-                $fn(rhs, self)
-            }
-        }
+        _impl_binary_op_owned_owned!($ops_trait, $ops_fn, $rhs, $lhs, $out, lhs, rhs, {$fn(rhs, lhs)});
     );
 }
 

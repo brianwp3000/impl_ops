@@ -39,6 +39,11 @@ impl_op!(- |a: &kong::Diddy<i32>, b: kong::Diddy<i32>| -> String {format!("{:?} 
 impl_op!(* |a: kong::Diddy<i32>, b: &kong::Diddy<i32>| -> String {format!("{:?} * {:?}", a, b)});
 impl_op!(/ |a: kong::Diddy<i32>, b: kong::Diddy<i32>| -> String {format!("{:?} / {:?}", a, b)});
 
+impl_op_commutative!(+ |a: &kong::Diddy<i32>, b: &i32| -> String {format!("{:?} + {:?}", a, b)});
+impl_op_commutative!(- |a: &kong::Diddy<i32>, b: i32| -> String {format!("{:?} - {:?}", a, b)});
+impl_op_commutative!(* |a: kong::Diddy<i32>, b: &i32| -> String {format!("{:?} * {:?}", a, b)});
+impl_op_commutative!(/ |a: kong::Diddy<i32>, b: i32| -> String {format!("{:?} / {:?}", a, b)});
+
 impl_op_commutative!(+ |a: &kong::Donkey, b: &kong::Diddy<i32>| -> String {
     let total_bananas = a.bananas + b.bananas;
     format!("{:?} + {:?} -> {:?}", a, b, total_bananas)
@@ -175,4 +180,77 @@ fn binary_owned_owned() {
     let actual = lhs / rhs;
     assert_eq!(expected, actual, "owned <op> owned");
 }
+
+#[test]
+fn binary_borrowed_borrowed_commutative() {
+    let lhs = kong::Diddy::<i32>::default();
+    let rhs = 1;
+    let expected = format!("{:?} + {:?}", lhs, rhs);
+
+    let actual = lhs + rhs;
+    assert_eq!(expected, actual, "owned <op> owned");
+    let actual = lhs + &rhs;
+    assert_eq!(expected, actual, "owned <op> borrowed");
+    let actual = &lhs + rhs;
+    assert_eq!(expected, actual, "borrowed <op> owned");
+    let actual = &lhs + &rhs;
+    assert_eq!(expected, actual, "borrowed <op> borrowed");
+
+    let actual = rhs + lhs;
+    assert_eq!(expected, actual, "owned <op> owned [commutative]");
+    let actual = rhs + &lhs;
+    assert_eq!(expected, actual, "owned <op> borrowed [commutative]");
+    let actual = &rhs + lhs;
+    assert_eq!(expected, actual, "borrowed <op> owned [commutative]");
+    let actual = &rhs + &lhs;
+    assert_eq!(expected, actual, "borrowed <op> borrowed [commutative]");
+}
+
+#[test]
+fn binary_borrowed_owned_commutative() {
+    let lhs = kong::Diddy::<i32>::default();
+    let rhs = 1i32;
+    let expected = format!("{:?} - {:?}", lhs, rhs);
+
+    let actual = lhs - rhs;
+    assert_eq!(expected, actual, "owned <op> owned");
+    let actual = &lhs - rhs;
+    assert_eq!(expected, actual, "borrowed <op> owned");
+
+    let actual = rhs - lhs;
+    assert_eq!(expected, actual, "owned <op> owned [commutative]");
+    let actual = rhs - &lhs;
+    assert_eq!(expected, actual, "owned <op> borrowed [commutative]");
+}
+
+#[test]
+fn binary_owned_borrowed_commutative() {
+    let lhs = kong::Diddy::<i32>::default();
+    let rhs = 1;
+    let expected = format!("{:?} * {:?}", lhs, rhs);
+
+    let actual = lhs * rhs;
+    assert_eq!(expected, actual, "owned <op> owned");
+    let actual = lhs * &rhs;
+    assert_eq!(expected, actual, "owned <op> borrowed");
+
+    let actual = rhs * lhs;
+    assert_eq!(expected, actual, "owned <op> owned [commutative]");
+    let actual = &rhs * lhs;
+    assert_eq!(expected, actual, "owned <op> borrowed [commutative]");
+}
+
+#[test]
+fn binary_owned_owned_commutative() {
+    let lhs = kong::Diddy::<i32>::default();
+    let rhs = 1;
+    let expected = format!("{:?} / {:?}", lhs, rhs);
+
+    let actual = lhs / rhs;
+    assert_eq!(expected, actual, "owned <op> owned");
+
+    let actual = rhs / lhs;
+    assert_eq!(expected, actual, "owned <op> owned [commutative]");
+}
+
 
