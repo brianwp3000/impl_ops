@@ -1,4 +1,8 @@
-# impl_ops
+# impl_ops [![Build Status]][travis]
+
+[Build Status]: https://api.travis-ci.org/brianwp3000/impl_ops.svg?branch=master
+[travis]: https://travis-ci.org/brianwp3000/impl_ops
+
 Macros for overloading operators easily in Rust.
 
 The ```impl_op!``` macro expands an operator and a closure a trait implementation for the relevant type. If either type is a reference, it creates trait implementations for both owned and borrowed variants of the type.
