@@ -36,6 +36,11 @@ impl_op!(- |a: &kong::Donkey| -> kong::Diddy<i32> {
 });
 impl_op!(! |a: &kong::Donkey| -> kong::Diddy<i32> { kong::Diddy::<i32>::new(a.bananas)});
 
+impl_op!(- |a: kong::Diddy<i32>| -> kong::Donkey {
+    let lhs = a;
+    kong::Donkey::new(lhs.bananas)
+});
+
 macro_rules! impl_op_test {
     ($test:ident, $op:tt($lhs:expr) -> ($expected:expr)) => (
         #[test]
@@ -53,3 +58,12 @@ macro_rules! impl_op_test {
 
 impl_op_test!(neg, -(kong::Donkey::new(2)) -> (kong::Diddy::<i32>::new(2)));
 impl_op_test!(not, !(kong::Donkey::new(2)) -> (kong::Diddy::<i32>::new(2)));
+
+#[test]
+fn owned() {
+    let lhs = kong::Diddy::<i32>::new(2);
+    let expected = kong::Donkey::new(2);
+
+    let actual = -lhs;
+    assert_eq!(expected, actual, "<op> owned");
+}

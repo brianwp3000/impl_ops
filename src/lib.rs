@@ -6,9 +6,10 @@
 #[macro_export]
 macro_rules! impl_op {
     ($op:tt |$lhs_i:ident : &mut $lhs:path, $rhs_i:ident : &$rhs:path| $body:block) => (_parse_assignment_op!($op, $lhs, $rhs, |$lhs_i : &mut $lhs, $rhs_i : &$rhs| $body););
-    ($op:tt |$lhs_i:ident : &$lhs:path|  -> $out:path $body:block) => (_parse_unary_op!($op, $lhs, $out, |$lhs_i : &$lhs| -> $out {$body}););
+    ($op:tt |$lhs_i:ident : &$lhs:path|  -> $out:path $body:block) => (_parse_unary_op!($op, &$lhs, $out, |$lhs_i : &$lhs| -> $out {$body}););
     ($op:tt |$lhs_i:ident : &$lhs:path, $rhs_i:ident : &$rhs:path| -> $out:path $body:block) => (_parse_binary_op!($op, &$lhs, &$rhs, $out, |$lhs_i : &$lhs, $rhs_i : &$rhs| -> $out {$body}););
     ($op:tt |$lhs_i:ident : &$lhs:path, $rhs_i:ident : $rhs:path| -> $out:path $body:block) => (_parse_binary_op!($op, &$lhs, $rhs, $out, |$lhs_i : &$lhs, $rhs_i : $rhs| -> $out {$body}););
+    ($op:tt |$lhs_i:ident : $lhs:path|  -> $out:path $body:block) => (_parse_unary_op!($op, $lhs, $out, |$lhs_i : $lhs| -> $out {$body}););
     ($op:tt |$lhs_i:ident : $lhs:path, $rhs_i:ident : &$rhs:path| -> $out:path $body:block) => (_parse_binary_op!($op, $lhs, &$rhs, $out, |$lhs_i : $lhs, $rhs_i : &$rhs| -> $out {$body}););
     ($op:tt |$lhs_i:ident : $lhs:path, $rhs_i:ident : $rhs:path| -> $out:path $body:block) => (_parse_binary_op!($op, $lhs, $rhs, $out, |$lhs_i : $lhs, $rhs_i : $rhs| -> $out {$body}););
 }
@@ -179,7 +180,7 @@ macro_rules! _impl_assignment_op_internal {
 
 #[macro_export]
 macro_rules! _impl_unary_op_internal {
-    ($ops_trait:ident, $ops_fn:ident, $lhs:ty, $out:ty, $fn:expr) => (        
+    ($ops_trait:ident, $ops_fn:ident, &$lhs:ty, $out:ty, $fn:expr) => (        
         impl ops::$ops_trait for $lhs {
             type Output = $out;
 
@@ -189,6 +190,15 @@ macro_rules! _impl_unary_op_internal {
         }
 
         impl<'a> ops::$ops_trait for &'a $lhs {
+            type Output = $out;
+
+            fn $ops_fn(self) -> Self::Output {
+                $fn(self)
+            }
+        }
+    );
+    ($ops_trait:ident, $ops_fn:ident, $lhs:ty, $out:ty, $fn:expr) => (        
+        impl ops::$ops_trait for $lhs {
             type Output = $out;
 
             fn $ops_fn(self) -> Self::Output {
