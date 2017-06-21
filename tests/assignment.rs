@@ -47,6 +47,12 @@ impl_op!(^= |a: &mut kong::Donkey, b: &kong::Diddy<i32>| {a.bananas += b.bananas
 impl_op!(<<= |a: &mut kong::Donkey, b: &kong::Diddy<i32>| {a.bananas += b.bananas;});
 impl_op!(>>= |a: &mut kong::Donkey, b: &kong::Diddy<i32>| {a.bananas += b.bananas;});
 
+impl_op!(+= |a: &mut kong::Diddy<i32>, b: kong::Donkey| {
+    let lhs = a;
+    let rhs = b;
+    lhs.bananas += rhs.bananas;
+});
+
 macro_rules! impl_op_test {
     ($test:ident, ($lhs:expr) $op:tt ($rhs:expr) -> ($expected:expr)) => (
         #[test]
@@ -75,3 +81,13 @@ impl_op_test!(bitor_assign, (kong::Donkey::new(2)) |= (kong::Diddy::<i32>::new(1
 impl_op_test!(bitxor_assign, (kong::Donkey::new(2)) ^= (kong::Diddy::<i32>::new(1)) -> (kong::Donkey::new(3)));
 impl_op_test!(shl_assign, (kong::Donkey::new(2)) <<= (kong::Diddy::<i32>::new(1)) -> (kong::Donkey::new(3)));
 impl_op_test!(shr_assign, (kong::Donkey::new(2)) >>= (kong::Diddy::<i32>::new(1)) -> (kong::Donkey::new(3)));
+
+#[test]
+fn owned() {
+    let mut actual = kong::Diddy::<i32>::new(2);
+    let rhs = kong::Donkey::new(3);
+    let expected = kong::Diddy::<i32>::new(5);
+
+    actual += rhs;
+    assert_eq!(expected, actual, "mut borrowed <op> owned");
+}
