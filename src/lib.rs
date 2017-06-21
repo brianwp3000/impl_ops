@@ -5,7 +5,8 @@
 
 #[macro_export]
 macro_rules! impl_op {
-    ($op:tt |$lhs_i:ident : &mut $lhs:path, $rhs_i:ident : &$rhs:path| $body:block) => (_parse_assignment_op!($op, $lhs, $rhs, |$lhs_i : &mut $lhs, $rhs_i : &$rhs| $body););
+    ($op:tt |$lhs_i:ident : &mut $lhs:path, $rhs_i:ident : &$rhs:path| $body:block) => (_parse_assignment_op!($op, $lhs, &$rhs, |$lhs_i : &mut $lhs, $rhs_i : &$rhs| $body););
+    ($op:tt |$lhs_i:ident : &mut $lhs:path, $rhs_i:ident : $rhs:path| $body:block) => (_parse_assignment_op!($op, $lhs, $rhs, |$lhs_i : &mut $lhs, $rhs_i : $rhs| $body););
     ($op:tt |$lhs_i:ident : &$lhs:path|  -> $out:path $body:block) => (_parse_unary_op!($op, &$lhs, $out, |$lhs_i : &$lhs| -> $out {$body}););
     ($op:tt |$lhs_i:ident : &$lhs:path, $rhs_i:ident : &$rhs:path| -> $out:path $body:block) => (_parse_binary_op!($op, &$lhs, &$rhs, $out, |$lhs_i : &$lhs, $rhs_i : &$rhs| -> $out {$body}););
     ($op:tt |$lhs_i:ident : &$lhs:path, $rhs_i:ident : $rhs:path| -> $out:path $body:block) => (_parse_binary_op!($op, &$lhs, $rhs, $out, |$lhs_i : &$lhs, $rhs_i : $rhs| -> $out {$body}););
@@ -163,7 +164,7 @@ macro_rules! _impl_binary_op_borrowed_borrowed {
 
 #[macro_export]
 macro_rules! _impl_assignment_op_internal {
-    ($ops_trait:ident, $ops_fn:ident, $lhs:ty, $rhs:ty, $fn:expr) => (        
+    ($ops_trait:ident, $ops_fn:ident, $lhs:ty, &$rhs:ty, $fn:expr) => (        
         impl ops::$ops_trait<$rhs> for $lhs {
             fn $ops_fn(&mut self, rhs: $rhs) {
                 $fn(self, &rhs)
@@ -172,6 +173,13 @@ macro_rules! _impl_assignment_op_internal {
 
         impl<'a> ops::$ops_trait<&'a $rhs> for $lhs {
             fn $ops_fn(&mut self, rhs: &$rhs) {
+                $fn(self, rhs)
+            }
+        }
+    );
+    ($ops_trait:ident, $ops_fn:ident, $lhs:ty, $rhs:ty, $fn:expr) => (        
+        impl ops::$ops_trait<$rhs> for $lhs {
+            fn $ops_fn(&mut self, rhs: $rhs) {
                 $fn(self, rhs)
             }
         }
