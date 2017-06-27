@@ -1,15 +1,13 @@
-//#![feature(trace_macros)]
-//#![feature(log_syntax)]
-
-//trace_macros!(true);
+#![feature(trace_macros)]
+trace_macros!(true);
 
 #[macro_export]
 macro_rules! impl_op {
     ($op:tt |$lhs_i:ident : &mut $lhs:path, $rhs_i:ident : &$rhs:path| $body:block) => (
-        _parse_assignment_op!($op, $lhs, &$rhs, |$lhs_i : &mut $lhs, $rhs_i : &$rhs| $body);
+        _parse_assignment_op!($op, $lhs, &$rhs, lhs, rhs, {|$lhs_i : &mut $lhs, $rhs_i : &$rhs| -> () {$body} (lhs, rhs);});
     );
     ($op:tt |$lhs_i:ident : &mut $lhs:path, $rhs_i:ident : $rhs:path| $body:block) => (
-        _parse_assignment_op!($op, $lhs, $rhs, |$lhs_i : &mut $lhs, $rhs_i : $rhs| $body);
+        _parse_assignment_op!($op, $lhs, $rhs, lhs, rhs, {|$lhs_i : &mut $lhs, $rhs_i : $rhs| -> () {$body} (lhs, rhs);});
     );
     ($op:tt |$lhs_i:ident : &$lhs:path|  -> $out:path $body:block) => (
         _parse_unary_op!($op, &$lhs, $out, |$lhs_i : &$lhs| -> $out {$body});
@@ -34,11 +32,11 @@ macro_rules! impl_op {
 #[macro_export]
 macro_rules! impl_op_ex {
     ($op:tt |$lhs_i:ident : &mut $lhs:path, $rhs_i:ident : &$rhs:path| $body:block) => (
-        _parse_assignment_op!($op, $lhs, &$rhs, |$lhs_i : &mut $lhs, $rhs_i : &$rhs| $body);
-        _parse_assignment_op!($op, $lhs, $rhs, |$lhs_i : &mut $lhs, $rhs_i : &$rhs| $body);
+        _parse_assignment_op!($op, $lhs, &$rhs, lhs, rhs, {|$lhs_i : &mut $lhs, $rhs_i : &$rhs| -> () {$body} (lhs, rhs);});
+        _parse_assignment_op!($op, $lhs, $rhs, lhs, rhs, {|$lhs_i : &mut $lhs, $rhs_i : &$rhs| -> () {$body} (lhs, &rhs);});
     );
     ($op:tt |$lhs_i:ident : &mut $lhs:path, $rhs_i:ident : $rhs:path| $body:block) => (
-        _parse_assignment_op!($op, $lhs, $rhs, |$lhs_i : &mut $lhs, $rhs_i : $rhs| $body);
+        _parse_assignment_op!($op, $lhs, $rhs, lhs, rhs, {|$lhs_i : &mut $lhs, $rhs_i : $rhs| -> () {$body} (lhs, rhs);});
     );
     ($op:tt |$lhs_i:ident : &$lhs:path|  -> $out:path $body:block) => (
         _parse_unary_op!($op, &$lhs, $out, |$lhs_i : &$lhs| -> $out {$body});
@@ -225,17 +223,19 @@ macro_rules! _impl_binary_op_borrowed_borrowed {
 
 #[macro_export]
 macro_rules! _impl_assignment_op_internal {
-    ($ops_trait:ident, $ops_fn:ident, $lhs:ty, &$rhs:ty, $fn:expr) => (        
+    ($ops_trait:ident, $ops_fn:ident, $lhs:ty, &$rhs:ty, $lhs_i:ident, $rhs_i:ident, $body:block) => (        
         impl<'a> ops::$ops_trait<&'a $rhs> for $lhs {
-            fn $ops_fn(&mut self, rhs: &$rhs) {
-                $fn(self, rhs)
+            fn $ops_fn(&mut self, $rhs_i: &$rhs) {
+                let mut $lhs_i = self;
+                $body
             }
         }
     );
-    ($ops_trait:ident, $ops_fn:ident, $lhs:ty, $rhs:ty, $fn:expr) => (        
+    ($ops_trait:ident, $ops_fn:ident, $lhs:ty, $rhs:ty, $lhs_i:ident, $rhs_i:ident, $body:block) => (        
         impl ops::$ops_trait<$rhs> for $lhs {
-            fn $ops_fn(&mut self, rhs: $rhs) {
-                $fn(self, &rhs)
+            fn $ops_fn(&mut self, $rhs_i: $rhs) {
+                let mut $lhs_i = self;
+                $body
             }
         }
     );
