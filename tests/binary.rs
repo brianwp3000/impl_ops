@@ -1,5 +1,5 @@
-// #![feature(trace_macros)]
-// trace_macros!(true);
+//#![feature(trace_macros)]
+//trace_macros!(true);
 
 #[macro_use]
 extern crate impl_ops;
@@ -8,249 +8,284 @@ use std::ops;
 
 mod kong {
     #[derive(Clone, Copy, Debug, Default, PartialEq)]
+    pub struct Barrel<T> {
+        pub bananas: T,
+    }
+
+    impl<T> Barrel<T> {
+        pub fn new(bananas: T) -> Barrel<T> {
+            Barrel { bananas }
+        }
+    }
+
+    #[derive(Clone, Copy, Debug, Default, PartialEq)]
     pub struct Donkey {
         pub bananas: i32,
     }
 
+    impl Donkey {
+        pub fn new(bananas: i32) -> Donkey {
+            Donkey { bananas }
+        }
+    }
+
     #[derive(Clone, Copy, Debug, Default, PartialEq)]
-    pub struct Diddy<T> {
-        pub bananas: T,
+    pub struct Diddy {
+        pub bananas: i32,
+    }
+
+    impl Diddy {
+        pub fn new(bananas: i32) -> Diddy {
+            Diddy { bananas }
+        }
+    }
+
+    #[derive(Clone, Copy, Debug, Default, PartialEq)]
+    pub struct Dixie {
+        pub bananas: i32,
+    }
+
+    impl Dixie {
+        pub fn new(bananas: i32) -> Dixie {
+            Dixie { bananas }
+        }
     }
 }
 
-impl_op!(+ |a: &kong::Donkey, b: &kong::Donkey| -> String {
-    let total_bananas = a.bananas + b.bananas;
-    format!("{:?} + {:?} -> {:?}", a, b, total_bananas)
-});
-impl_op!(- |a: &kong::Donkey, b: &kong::Donkey| -> String {format!("{:?} - {:?}", a, b)});
-impl_op!(* |a: &kong::Donkey, b: &kong::Donkey| -> String {format!("{:?} * {:?}", a, b)});
-impl_op!(/ |a: &kong::Donkey, b: &kong::Donkey| -> String {format!("{:?} / {:?}", a, b)});
-impl_op!(% |a: &kong::Donkey, b: &kong::Donkey| -> String {format!("{:?} % {:?}", a, b)});
+// impl_op every operator ------------------------------------------------------------------
 
-impl_op!(& |a: &kong::Donkey, b: &kong::Donkey| -> String {format!("{:?} & {:?}", a, b)});
-impl_op!(| |a: &kong::Donkey, b: &kong::Donkey| -> String {format!("{:?} | {:?}", a, b)});
-impl_op!(^ |a: &kong::Donkey, b: &kong::Donkey| -> String {format!("{:?} ^ {:?}", a, b)});
-
-impl_op!(<< |a: &kong::Donkey, b: &kong::Donkey| -> String {format!("{:?} << {:?}", a, b)});
-impl_op!(>> |a: &kong::Donkey, b: &kong::Donkey| -> String {format!("{:?} >> {:?}", a, b)});
-
-impl_op!(+ |a: &kong::Diddy<i32>, b: &kong::Diddy<i32>| -> String {format!("{:?} + {:?}", a, b)});
-impl_op!(- |a: &kong::Diddy<i32>, b: kong::Diddy<i32>| -> String {format!("{:?} - {:?}", a, b)});
-impl_op!(* |a: kong::Diddy<i32>, b: &kong::Diddy<i32>| -> String {format!("{:?} * {:?}", a, b)});
-impl_op!(/ |a: kong::Diddy<i32>, b: kong::Diddy<i32>| -> String {format!("{:?} / {:?}", a, b)});
-
-impl_op_commutative!(+ |a: &kong::Diddy<i32>, b: &i32| -> String {format!("{:?} + {:?}", a, b)});
-impl_op_commutative!(- |a: &kong::Diddy<i32>, b: i32| -> String {format!("{:?} - {:?}", a, b)});
-impl_op_commutative!(* |a: kong::Diddy<i32>, b: &i32| -> String {format!("{:?} * {:?}", a, b)});
-impl_op_commutative!(/ |a: kong::Diddy<i32>, b: i32| -> String {format!("{:?} / {:?}", a, b)});
-
-impl_op_commutative!(+ |a: &kong::Donkey, b: &kong::Diddy<i32>| -> String {
-    let total_bananas = a.bananas + b.bananas;
-    format!("{:?} + {:?} -> {:?}", a, b, total_bananas)
-});
-impl_op_commutative!(- |a: &kong::Donkey, b: &kong::Diddy<i32>| -> String {format!("{:?} - {:?}", a, b)});
-impl_op_commutative!(* |a: &kong::Donkey, b: &kong::Diddy<i32>| -> String {format!("{:?} * {:?}", a, b)});
-impl_op_commutative!(/ |a: &kong::Donkey, b: &kong::Diddy<i32>| -> String {format!("{:?} / {:?}", a, b)});
-impl_op_commutative!(% |a: &kong::Donkey, b: &kong::Diddy<i32>| -> String {format!("{:?} % {:?}", a, b)});
-
-impl_op_commutative!(& |a: &kong::Donkey, b: &kong::Diddy<i32>| -> String {format!("{:?} & {:?}", a, b)});
-impl_op_commutative!(| |a: &kong::Donkey, b: &kong::Diddy<i32>| -> String {format!("{:?} | {:?}", a, b)});
-impl_op_commutative!(^ |a: &kong::Donkey, b: &kong::Diddy<i32>| -> String {format!("{:?} ^ {:?}", a, b)});
-
-impl_op_commutative!(<< |a: &kong::Donkey, b: &kong::Diddy<i32>| -> String {format!("{:?} << {:?}", a, b)});
-impl_op_commutative!(>> |a: &kong::Donkey, b: &kong::Diddy<i32>| -> String {format!("{:?} >> {:?}", a, b)});
-
-macro_rules! impl_op_test {
-    ($test:ident, ($lhs:expr) $op:tt ($rhs:expr) -> ($expected:expr)) => (
-        #[test]
-        fn $test() {
-            let lhs = $lhs;
-            let rhs = $rhs;
-            let expected = $expected;
-
-            let actual = lhs $op rhs;
-            assert_eq!(expected, actual, "owned <op> owned");
-            let actual = lhs $op &rhs;
-            assert_eq!(expected, actual, "owned <op> borrowed");
-            let actual = &lhs $op rhs;
-            assert_eq!(expected, actual, "borrowed <op> owned");
-            let actual = &lhs $op &rhs;
-            assert_eq!(expected, actual, "borrowed <op> borrowed");
-        }
-    );
-}
-
-macro_rules! impl_op_test_commutative {
-    ($test:ident, ($lhs:expr) $op:tt ($rhs:expr) -> ($expected:expr)) => (
-        #[test]
-        fn $test() {
-            let lhs = $lhs;
-            let rhs = $rhs;
-            let expected = $expected;
-
-            let actual = lhs $op rhs;
-            assert_eq!(expected, actual, "owned <op> owned");
-            let actual = lhs $op &rhs;
-            assert_eq!(expected, actual, "owned <op> borrowed");
-            let actual = &lhs $op rhs;
-            assert_eq!(expected, actual, "borrowed <op> owned");
-            let actual = &lhs $op &rhs;
-            assert_eq!(expected, actual, "borrowed <op> borrowed");
-
-            let actual = rhs $op lhs;
-            assert_eq!(expected, actual, "owned <op> owned [commutative]");
-            let actual = rhs $op lhs;
-            assert_eq!(expected, actual, "owned <op> borrowed [commutative]");
-            let actual = &rhs $op lhs;
-            assert_eq!(expected, actual, "borrowed <op> owned [commutative]");
-            let actual = &rhs $op &lhs;
-            assert_eq!(expected, actual, "borrowed <op> borrowed [commutative]");
-        }
-    );
-}
-
-impl_op_test!(add, (kong::Donkey::default()) + (kong::Donkey::default()) -> (format!("{:?} + {:?} -> {:?}", kong::Donkey::default(), kong::Donkey::default(), 0)));
-impl_op_test!(sub, (kong::Donkey::default()) - (kong::Donkey::default()) -> (format!("{:?} - {:?}", kong::Donkey::default(), kong::Donkey::default())));
-impl_op_test!(mul, (kong::Donkey::default()) * (kong::Donkey::default()) -> (format!("{:?} * {:?}", kong::Donkey::default(), kong::Donkey::default())));
-impl_op_test!(div, (kong::Donkey::default()) / (kong::Donkey::default()) -> (format!("{:?} / {:?}", kong::Donkey::default(), kong::Donkey::default())));
-impl_op_test!(rem, (kong::Donkey::default()) % (kong::Donkey::default()) -> (format!("{:?} % {:?}", kong::Donkey::default(), kong::Donkey::default())));
-impl_op_test!(bitand, (kong::Donkey::default()) & (kong::Donkey::default()) -> (format!("{:?} & {:?}", kong::Donkey::default(), kong::Donkey::default())));
-impl_op_test!(bitor, (kong::Donkey::default()) | (kong::Donkey::default()) -> (format!("{:?} | {:?}", kong::Donkey::default(), kong::Donkey::default())));
-impl_op_test!(bitxor, (kong::Donkey::default()) ^ (kong::Donkey::default()) -> (format!("{:?} ^ {:?}", kong::Donkey::default(), kong::Donkey::default())));
-impl_op_test!(shl, (kong::Donkey::default()) << (kong::Donkey::default()) -> (format!("{:?} << {:?}", kong::Donkey::default(), kong::Donkey::default())));
-impl_op_test!(shr, (kong::Donkey::default()) >> (kong::Donkey::default()) -> (format!("{:?} >> {:?}", kong::Donkey::default(), kong::Donkey::default())));
-
-impl_op_test_commutative!(add_commutative, (kong::Donkey::default()) + (kong::Diddy::<i32>::default()) -> (format!("{:?} + {:?} -> {:?}", kong::Donkey::default(), kong::Diddy::<i32>::default(), 0)));
-impl_op_test_commutative!(sub_commutative, (kong::Donkey::default()) - (kong::Diddy::<i32>::default()) -> (format!("{:?} - {:?}", kong::Donkey::default(), kong::Diddy::<i32>::default())));
-impl_op_test_commutative!(mul_commutative, (kong::Donkey::default()) * (kong::Diddy::<i32>::default()) -> (format!("{:?} * {:?}", kong::Donkey::default(), kong::Diddy::<i32>::default())));
-impl_op_test_commutative!(div_commutative, (kong::Donkey::default()) / (kong::Diddy::<i32>::default()) -> (format!("{:?} / {:?}", kong::Donkey::default(), kong::Diddy::<i32>::default())));
-impl_op_test_commutative!(rem_commutative, (kong::Donkey::default()) % (kong::Diddy::<i32>::default()) -> (format!("{:?} % {:?}", kong::Donkey::default(), kong::Diddy::<i32>::default())));
-impl_op_test_commutative!(bitand_commutative, (kong::Donkey::default()) & (kong::Diddy::<i32>::default()) -> (format!("{:?} & {:?}", kong::Donkey::default(), kong::Diddy::<i32>::default())));
-impl_op_test_commutative!(bitor_commutative, (kong::Donkey::default()) | (kong::Diddy::<i32>::default()) -> (format!("{:?} | {:?}", kong::Donkey::default(), kong::Diddy::<i32>::default())));
-impl_op_test_commutative!(bitxor_commutative, (kong::Donkey::default()) ^ (kong::Diddy::<i32>::default()) -> (format!("{:?} ^ {:?}", kong::Donkey::default(), kong::Diddy::<i32>::default())));
-impl_op_test_commutative!(shl_commutative, (kong::Donkey::default()) << (kong::Diddy::<i32>::default()) -> (format!("{:?} << {:?}", kong::Donkey::default(), kong::Diddy::<i32>::default())));
-impl_op_test_commutative!(shr_commutative, (kong::Donkey::default()) >> (kong::Diddy::<i32>::default()) -> (format!("{:?} >> {:?}", kong::Donkey::default(), kong::Diddy::<i32>::default())));
-
+impl_op!(+ |a: kong::Donkey, b: kong::Diddy| -> kong::Dixie { kong::Dixie::new(a.bananas + b.bananas) });
 #[test]
-fn binary_borrowed_borrowed() {
-    let lhs = kong::Diddy::<i32>::default();
-    let rhs = kong::Diddy::<i32>::default();
-    let expected = format!("{:?} + {:?}", lhs, rhs);
-
-    let actual = lhs + rhs;
-    assert_eq!(expected, actual, "owned <op> owned");
-    let actual = lhs + &rhs;
-    assert_eq!(expected, actual, "owned <op> borrowed");
-    let actual = &lhs + rhs;
-    assert_eq!(expected, actual, "borrowed <op> owned");
-    let actual = &lhs + &rhs;
-    assert_eq!(expected, actual, "borrowed <op> borrowed");
+fn add() {
+    assert_eq!(kong::Dixie::new(1 + 2), kong::Donkey::new(1) + kong::Diddy::new(2));
 }
 
+impl_op!(- |a: kong::Donkey, b: kong::Diddy| -> kong::Dixie { kong::Dixie::new(a.bananas - b.bananas) });
 #[test]
-fn binary_borrowed_owned() {
-    let lhs = kong::Diddy::<i32>::default();
-    let rhs = kong::Diddy::<i32>::default();
-    let expected = format!("{:?} - {:?}", lhs, rhs);
-
-    let actual = lhs - rhs;
-    assert_eq!(expected, actual, "owned <op> owned");
-    let actual = &lhs - rhs;
-    assert_eq!(expected, actual, "borrowed <op> owned");
+fn sub() {
+    assert_eq!(kong::Dixie::new(1 - 2), kong::Donkey::new(1) - kong::Diddy::new(2));
 }
 
+impl_op!(* |a: kong::Donkey, b: kong::Diddy| -> kong::Dixie { kong::Dixie::new(a.bananas * b.bananas) });
 #[test]
-fn binary_owned_borrowed() {
-    let lhs = kong::Diddy::<i32>::default();
-    let rhs = kong::Diddy::<i32>::default();
-    let expected = format!("{:?} * {:?}", lhs, rhs);
-
-    let actual = lhs * rhs;
-    assert_eq!(expected, actual, "owned <op> owned");
-    let actual = lhs * &rhs;
-    assert_eq!(expected, actual, "owned <op> borrowed");
+fn mul() {
+    assert_eq!(kong::Dixie::new(1 * 2), kong::Donkey::new(1) * kong::Diddy::new(2));
 }
 
+impl_op!(/ |a: kong::Donkey, b: kong::Diddy| -> kong::Dixie { kong::Dixie::new(a.bananas / b.bananas) });
 #[test]
-fn binary_owned_owned() {
-    let lhs = kong::Diddy::<i32>::default();
-    let rhs = kong::Diddy::<i32>::default();
-    let expected = format!("{:?} / {:?}", lhs, rhs);
-
-    let actual = lhs / rhs;
-    assert_eq!(expected, actual, "owned <op> owned");
+fn div() {
+    assert_eq!(kong::Dixie::new(1 / 2), kong::Donkey::new(1) / kong::Diddy::new(2));
 }
-
+impl_op!(% |a: kong::Donkey, b: kong::Diddy| -> kong::Dixie { kong::Dixie::new(a.bananas % b.bananas) });
 #[test]
-fn binary_borrowed_borrowed_commutative() {
-    let lhs = kong::Diddy::<i32>::default();
-    let rhs = 1;
-    let expected = format!("{:?} + {:?}", lhs, rhs);
-
-    let actual = lhs + rhs;
-    assert_eq!(expected, actual, "owned <op> owned");
-    let actual = lhs + &rhs;
-    assert_eq!(expected, actual, "owned <op> borrowed");
-    let actual = &lhs + rhs;
-    assert_eq!(expected, actual, "borrowed <op> owned");
-    let actual = &lhs + &rhs;
-    assert_eq!(expected, actual, "borrowed <op> borrowed");
-
-    let actual = rhs + lhs;
-    assert_eq!(expected, actual, "owned <op> owned [commutative]");
-    let actual = rhs + &lhs;
-    assert_eq!(expected, actual, "owned <op> borrowed [commutative]");
-    let actual = &rhs + lhs;
-    assert_eq!(expected, actual, "borrowed <op> owned [commutative]");
-    let actual = &rhs + &lhs;
-    assert_eq!(expected, actual, "borrowed <op> borrowed [commutative]");
+fn rem() {
+    assert_eq!(kong::Dixie::new(1 % 2), kong::Donkey::new(1) % kong::Diddy::new(2));
 }
 
+impl_op!(& |a: kong::Donkey, b: kong::Diddy| -> kong::Dixie { kong::Dixie::new(a.bananas & b.bananas) });
 #[test]
-fn binary_borrowed_owned_commutative() {
-    let lhs = kong::Diddy::<i32>::default();
-    let rhs = 1i32;
-    let expected = format!("{:?} - {:?}", lhs, rhs);
-
-    let actual = lhs - rhs;
-    assert_eq!(expected, actual, "owned <op> owned");
-    let actual = &lhs - rhs;
-    assert_eq!(expected, actual, "borrowed <op> owned");
-
-    let actual = rhs - lhs;
-    assert_eq!(expected, actual, "owned <op> owned [commutative]");
-    let actual = rhs - &lhs;
-    assert_eq!(expected, actual, "owned <op> borrowed [commutative]");
+fn bitand() {
+    assert_eq!(kong::Dixie::new(1 & 2), kong::Donkey::new(1) & kong::Diddy::new(2));
 }
-
+impl_op!(| |a: kong::Donkey, b: kong::Diddy| -> kong::Dixie { kong::Dixie::new(a.bananas | b.bananas) });
 #[test]
-fn binary_owned_borrowed_commutative() {
-    let lhs = kong::Diddy::<i32>::default();
-    let rhs = 1;
-    let expected = format!("{:?} * {:?}", lhs, rhs);
-
-    let actual = lhs * rhs;
-    assert_eq!(expected, actual, "owned <op> owned");
-    let actual = lhs * &rhs;
-    assert_eq!(expected, actual, "owned <op> borrowed");
-
-    let actual = rhs * lhs;
-    assert_eq!(expected, actual, "owned <op> owned [commutative]");
-    let actual = &rhs * lhs;
-    assert_eq!(expected, actual, "owned <op> borrowed [commutative]");
+fn bitor() {
+    assert_eq!(kong::Dixie::new(1 | 2), kong::Donkey::new(1) | kong::Diddy::new(2));
 }
-
+impl_op!(^ |a: kong::Donkey, b: kong::Diddy| -> kong::Dixie { kong::Dixie::new(a.bananas ^ b.bananas) });
 #[test]
-fn binary_owned_owned_commutative() {
-    let lhs = kong::Diddy::<i32>::default();
-    let rhs = 1;
-    let expected = format!("{:?} / {:?}", lhs, rhs);
-
-    let actual = lhs / rhs;
-    assert_eq!(expected, actual, "owned <op> owned");
-
-    let actual = rhs / lhs;
-    assert_eq!(expected, actual, "owned <op> owned [commutative]");
+fn bitxor() {
+    assert_eq!(kong::Dixie::new(1 ^ 2), kong::Donkey::new(1) ^ kong::Diddy::new(2));
 }
 
+impl_op!(<< |a: kong::Donkey, b: kong::Diddy| -> kong::Dixie { kong::Dixie::new(a.bananas << b.bananas) });
+#[test]
+fn shl() {
+    assert_eq!(kong::Dixie::new(1 << 2), kong::Donkey::new(1) << kong::Diddy::new(2));
+}
+impl_op!(>> |a: kong::Donkey, b: kong::Diddy| -> kong::Dixie { kong::Dixie::new(a.bananas >> b.bananas) });
+#[test]
+fn shr() {
+    assert_eq!(kong::Dixie::new(1 >> 2), kong::Donkey::new(1) >> kong::Diddy::new(2));
+}
 
+// END impl_op every operator -------------------------------------------------------------
+
+// impl_op every variant ------------------------------------------------------------------
+
+impl_op!(- |a: kong::Diddy, b: kong::Dixie| -> kong::Donkey { kong::Donkey::new(a.bananas - b.bananas) });
+#[test]
+fn owned_owned() {
+    assert_eq!(kong::Donkey::new(1 - 2), kong::Diddy::new(1) - kong::Dixie::new(2));
+}
+
+impl_op!(- |a: kong::Diddy, b: &kong::Dixie| -> kong::Donkey { kong::Donkey::new(a.bananas - b.bananas) });
+#[test]
+fn owned_borrowed() {
+    assert_eq!(kong::Donkey::new(1 - 2), kong::Diddy::new(1) - &kong::Dixie::new(2));
+}
+
+impl_op!(- |a: &kong::Diddy, b: kong::Dixie| -> kong::Donkey { kong::Donkey::new(a.bananas - b.bananas) });
+#[test]
+fn borrowed_owned() {
+    assert_eq!(kong::Donkey::new(1 - 2), &kong::Diddy::new(1) - kong::Dixie::new(2));
+}
+
+impl_op!(- |a: &kong::Diddy, b: &kong::Dixie| -> kong::Donkey { kong::Donkey::new(a.bananas - b.bananas) });
+#[test]
+fn borrowed_borrowed() {
+    assert_eq!(kong::Donkey::new(1 - 2), &kong::Diddy::new(1) - &kong::Dixie::new(2));
+}
+
+// END impl_op every variant ------------------------------------------------------
+
+// impl_op_commutative every variant ------------------------------------------------------------------
+
+impl_op_commutative!(+ |a: kong::Diddy, b: kong::Dixie| -> kong::Donkey { kong::Donkey::new(a.bananas + b.bananas) });
+#[test]
+fn owned_owned_commutative() {
+    assert_eq!(kong::Donkey::new(1 + 2), kong::Diddy::new(1) + kong::Dixie::new(2));
+    assert_eq!(kong::Donkey::new(2 + 1), kong::Dixie::new(1) + kong::Diddy::new(2));
+}
+
+impl_op_commutative!(+ |a: kong::Diddy, b: &kong::Dixie| -> kong::Donkey { kong::Donkey::new(a.bananas + b.bananas) });
+#[test]
+fn owned_borrowed_commutative() {
+    assert_eq!(kong::Donkey::new(1 + 2), kong::Diddy::new(1) + &kong::Dixie::new(2));
+    assert_eq!(kong::Donkey::new(2 + 1), &kong::Dixie::new(1) + kong::Diddy::new(2));
+}
+
+impl_op_commutative!(* |a: &kong::Diddy, b: kong::Dixie| -> kong::Donkey { kong::Donkey::new(a.bananas * b.bananas) });
+#[test]
+fn borrowed_owned_commutative() {
+    assert_eq!(kong::Donkey::new(1 * 2), &kong::Diddy::new(1) * kong::Dixie::new(2));
+    assert_eq!(kong::Donkey::new(2 * 1), kong::Dixie::new(1) * &kong::Diddy::new(2));
+}
+
+impl_op_commutative!(* |a: &kong::Diddy, b: &kong::Dixie| -> kong::Donkey { kong::Donkey::new(a.bananas * b.bananas) });
+#[test]
+fn borrowed_borrowed_commutative() {
+    assert_eq!(kong::Donkey::new(1 * 2), &kong::Diddy::new(1) * &kong::Dixie::new(2));
+    assert_eq!(kong::Donkey::new(2 * 1), &kong::Dixie::new(1) * &kong::Diddy::new(2));
+}
+
+// END impl_op_commutative every variant ------------------------------------------------------
+
+// impl_op_ex every variant ------------------------------------------------------------------
+
+impl_op_ex!(/ |a: kong::Diddy, b: kong::Dixie| -> kong::Donkey { kong::Donkey::new(a.bananas / b.bananas) });
+#[test]
+fn owned_owned_ex() {
+    assert_eq!(kong::Donkey::new(1 / 2), kong::Diddy::new(1) / kong::Dixie::new(2));
+}
+
+impl_op_ex!(% |a: kong::Diddy, b: &kong::Dixie| -> kong::Donkey { kong::Donkey::new(a.bananas % b.bananas) });
+#[test]
+fn owned_borrowed_ex() {
+    assert_eq!(kong::Donkey::new(1 % 2), kong::Diddy::new(1) % &kong::Dixie::new(2));
+    assert_eq!(kong::Donkey::new(1 % 2), kong::Diddy::new(1) % kong::Dixie::new(2));
+}
+
+impl_op_ex!(& |a: &kong::Diddy, b: kong::Dixie| -> kong::Donkey { kong::Donkey::new(a.bananas & b.bananas) });
+#[test]
+fn borrowed_owned_ex() {
+    assert_eq!(kong::Donkey::new(1 & 2), &kong::Diddy::new(1) & kong::Dixie::new(2));
+    assert_eq!(kong::Donkey::new(1 & 2), kong::Diddy::new(1) & kong::Dixie::new(2));
+}
+
+impl_op_ex!(| |a: &kong::Diddy, b: &kong::Dixie| -> kong::Donkey { kong::Donkey::new(a.bananas | b.bananas) });
+#[test]
+fn borrowed_borrowed_ex() {
+    assert_eq!(kong::Donkey::new(1 | 2), &kong::Diddy::new(1) | &kong::Dixie::new(2));
+    assert_eq!(kong::Donkey::new(1 | 2), &kong::Diddy::new(1) | kong::Dixie::new(2));
+    assert_eq!(kong::Donkey::new(1 | 2), kong::Diddy::new(1) | &kong::Dixie::new(2));
+    assert_eq!(kong::Donkey::new(1 | 2), kong::Diddy::new(1) | kong::Dixie::new(2));
+}
+
+// END impl_op_ex every variant ------------------------------------------------------
+
+// impl_op_ex_commutative every variant ------------------------------------------------------------------
+
+impl_op_ex_commutative!(+ |a: kong::Donkey, b: kong::Dixie| -> kong::Diddy { kong::Diddy::new(a.bananas + b.bananas) });
+#[test]
+fn owned_owned_ex_commutative() {
+    assert_eq!(kong::Diddy::new(1 + 2), kong::Donkey::new(1) + kong::Dixie::new(2));
+    assert_eq!(kong::Diddy::new(2 + 1), kong::Dixie::new(1) + kong::Donkey::new(2));
+}
+
+impl_op_ex_commutative!(* |a: kong::Donkey, b: &kong::Dixie| -> kong::Diddy { kong::Diddy::new(a.bananas * b.bananas) });
+#[test]
+fn owned_borrowed_ex_commutative() {
+    assert_eq!(kong::Diddy::new(1 * 2), kong::Donkey::new(1) * &kong::Dixie::new(2));
+    assert_eq!(kong::Diddy::new(1 * 2), kong::Donkey::new(1) * kong::Dixie::new(2));
+
+    assert_eq!(kong::Diddy::new(2 * 1), &kong::Dixie::new(1) * kong::Donkey::new(2));
+    assert_eq!(kong::Diddy::new(2 * 1), kong::Dixie::new(1) * kong::Donkey::new(2));
+}
+
+impl_op_ex_commutative!(& |a: &kong::Donkey, b: kong::Dixie| -> kong::Diddy { kong::Diddy::new(a.bananas & b.bananas) });
+#[test]
+fn borrowed_owned_ex_commutative() {
+    assert_eq!(kong::Diddy::new(1 & 2), &kong::Donkey::new(1) & kong::Dixie::new(2));
+    assert_eq!(kong::Diddy::new(1 & 2), kong::Donkey::new(1) & kong::Dixie::new(2));
+
+    assert_eq!(kong::Diddy::new(2 & 1), kong::Dixie::new(1) & &kong::Donkey::new(2));
+    assert_eq!(kong::Diddy::new(2 & 1), kong::Dixie::new(1) & kong::Donkey::new(2));
+}
+
+impl_op_ex_commutative!(| |a: &kong::Donkey, b: &kong::Dixie| -> kong::Diddy { kong::Diddy::new(a.bananas | b.bananas) });
+#[test]
+fn borrowed_borrowed_ex_commutative() {
+    assert_eq!(kong::Diddy::new(1 | 2), &kong::Donkey::new(1) | &kong::Dixie::new(2));
+    assert_eq!(kong::Diddy::new(1 | 2), &kong::Donkey::new(1) | kong::Dixie::new(2));
+    assert_eq!(kong::Diddy::new(1 | 2), kong::Donkey::new(1) | &kong::Dixie::new(2));
+    assert_eq!(kong::Diddy::new(1 | 2), kong::Donkey::new(1) | kong::Dixie::new(2));
+
+    assert_eq!(kong::Diddy::new(2 | 1), &kong::Dixie::new(1) | &kong::Donkey::new(2));
+    assert_eq!(kong::Diddy::new(2 | 1), kong::Dixie::new(1) | &kong::Donkey::new(2));
+    assert_eq!(kong::Diddy::new(2 | 1), &kong::Dixie::new(1) | kong::Donkey::new(2));
+    assert_eq!(kong::Diddy::new(2 | 1), kong::Dixie::new(1) | kong::Donkey::new(2));
+}
+
+ // END impl_op_ex every variant ------------------------------------------------------
+
+// generics -----------------------------------------------------------------
+
+impl_op!(+ |a: kong::Barrel<i32>, b: kong::Barrel<u32>| -> kong::Barrel<f32> { kong::Barrel::new((a.bananas + b.bananas as i32) as f32) });
+ #[test]
+ fn impl_op_generic() {
+    assert_eq!(kong::Barrel::new((1 + 2) as f32), kong::Barrel::new(1) + kong::Barrel::new(2u32));
+ }
+
+ impl_op_commutative!(* |a: kong::Barrel<i32>, b: kong::Barrel<u32>| -> kong::Barrel<f32> { kong::Barrel::new((a.bananas * b.bananas as i32) as f32) });
+ #[test]
+ fn impl_op_commutative_generic() {
+    assert_eq!(kong::Barrel::new((1 * 2) as f32), kong::Barrel::new(1) * kong::Barrel::new(2u32));
+    assert_eq!(kong::Barrel::new((2 * 1) as f32), kong::Barrel::new(1u32) * kong::Barrel::new(2));
+ }
+
+ impl_op_ex!(- |a: &kong::Barrel<i32>, b: &kong::Barrel<u32>| -> kong::Barrel<f32> { kong::Barrel::new((a.bananas - b.bananas as i32) as f32) });
+ #[test]
+ fn impl_op_ex_generic() {
+    assert_eq!(kong::Barrel::new((1 - 2) as f32), kong::Barrel::new(1) - kong::Barrel::new(2u32));
+    assert_eq!(kong::Barrel::new((1 - 2) as f32), kong::Barrel::new(1) - &kong::Barrel::new(2u32));
+    assert_eq!(kong::Barrel::new((1 - 2) as f32), &kong::Barrel::new(1) - kong::Barrel::new(2u32));
+    assert_eq!(kong::Barrel::new((1 - 2) as f32), &kong::Barrel::new(1) - &kong::Barrel::new(2u32));
+ }
+
+ impl_op_ex_commutative!(& |a: &kong::Barrel<i32>, b: &kong::Barrel<u32>| -> kong::Barrel<f32> { kong::Barrel::new((a.bananas & b.bananas as i32) as f32) });
+ #[test]
+ fn impl_op_ex_commutative_generic() {
+    assert_eq!(kong::Barrel::new((1 & 2) as f32), kong::Barrel::new(1) & kong::Barrel::new(2u32));
+    assert_eq!(kong::Barrel::new((1 & 2) as f32), kong::Barrel::new(1) & &kong::Barrel::new(2u32));
+    assert_eq!(kong::Barrel::new((1 & 2) as f32), &kong::Barrel::new(1) & kong::Barrel::new(2u32));
+    assert_eq!(kong::Barrel::new((1 & 2) as f32), &kong::Barrel::new(1) & &kong::Barrel::new(2u32));
+
+    assert_eq!(kong::Barrel::new((2 & 1) as f32), kong::Barrel::new(1u32) & kong::Barrel::new(2));
+    assert_eq!(kong::Barrel::new((2 & 1) as f32), kong::Barrel::new(1u32) & &kong::Barrel::new(2));
+    assert_eq!(kong::Barrel::new((2 & 1) as f32), &kong::Barrel::new(1u32) & kong::Barrel::new(2));
+    assert_eq!(kong::Barrel::new((2 & 1) as f32), &kong::Barrel::new(1u32) & &kong::Barrel::new(2));
+ }
+
+ // END generics ---------------------------------------------------------------
