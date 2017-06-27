@@ -1,5 +1,5 @@
-#![feature(trace_macros)]
-trace_macros!(true);
+//#![feature(trace_macros)]
+//trace_macros!(true);
 
 #[macro_export]
 macro_rules! impl_op {
@@ -9,8 +9,8 @@ macro_rules! impl_op {
     ($op:tt |$lhs_i:ident : &mut $lhs:path, $rhs_i:ident : $rhs:path| $body:block) => (
         _parse_assignment_op!($op, $lhs, $rhs, lhs, rhs, {|$lhs_i : &mut $lhs, $rhs_i : $rhs| -> () {$body} (lhs, rhs);});
     );
-    ($op:tt |$lhs_i:ident : &$lhs:path|  -> $out:path $body:block) => (
-        _parse_unary_op!($op, &$lhs, $out, |$lhs_i : &$lhs| -> $out {$body});
+    ($op:tt |$lhs_i:ident : &$lhs:path| -> $out:path $body:block) => (
+        _parse_unary_op!($op, &$lhs, $out, lhs, {|$lhs_i : &$lhs| -> $out {$body} (lhs)});
     );
     ($op:tt |$lhs_i:ident : &$lhs:path, $rhs_i:ident : &$rhs:path| -> $out:path $body:block) => (
         _parse_binary_op!($op, &$lhs, &$rhs, $out, lhs, rhs, {|$lhs_i : &$lhs, $rhs_i : &$rhs| -> $out {$body} (lhs, rhs)});
@@ -18,8 +18,8 @@ macro_rules! impl_op {
     ($op:tt |$lhs_i:ident : &$lhs:path, $rhs_i:ident : $rhs:path| -> $out:path $body:block) => (
         _parse_binary_op!($op, &$lhs, $rhs, $out, lhs, rhs, {|$lhs_i : &$lhs, $rhs_i : $rhs| -> $out {$body} (lhs, rhs)});
     );
-    ($op:tt |$lhs_i:ident : $lhs:path|  -> $out:path $body:block) => (
-        _parse_unary_op!($op, $lhs, $out, |$lhs_i : $lhs| -> $out {$body});
+    ($op:tt |$lhs_i:ident : $lhs:path| -> $out:path $body:block) => (
+        _parse_unary_op!($op, $lhs, $out, lhs, {|$lhs_i : $lhs| -> $out {$body} (lhs)});
     );
     ($op:tt |$lhs_i:ident : $lhs:path, $rhs_i:ident : &$rhs:path| -> $out:path $body:block) => (
         _parse_binary_op!($op, $lhs, &$rhs, $out, lhs, rhs, {|$lhs_i : $lhs, $rhs_i : &$rhs| -> $out {$body} (lhs, rhs)});
@@ -38,9 +38,9 @@ macro_rules! impl_op_ex {
     ($op:tt |$lhs_i:ident : &mut $lhs:path, $rhs_i:ident : $rhs:path| $body:block) => (
         _parse_assignment_op!($op, $lhs, $rhs, lhs, rhs, {|$lhs_i : &mut $lhs, $rhs_i : $rhs| -> () {$body} (lhs, rhs);});
     );
-    ($op:tt |$lhs_i:ident : &$lhs:path|  -> $out:path $body:block) => (
-        _parse_unary_op!($op, &$lhs, $out, |$lhs_i : &$lhs| -> $out {$body});
-        _parse_unary_op!($op, $lhs, $out, |$lhs_i : &$lhs| -> $out {$body});
+    ($op:tt |$lhs_i:ident : &$lhs:path| -> $out:path $body:block) => (
+        _parse_unary_op!($op, &$lhs, $out, lhs, {|$lhs_i : &$lhs| -> $out {$body} (lhs)});
+        _parse_unary_op!($op, $lhs, $out, lhs, {|$lhs_i : &$lhs| -> $out {$body} (&lhs)});
     );
     ($op:tt |$lhs_i:ident : &$lhs:path, $rhs_i:ident : &$rhs:path| -> $out:path $body:block) => (
         impl_op!($op |$lhs_i : &$lhs, $rhs_i : &$rhs| -> $out $body);
@@ -53,7 +53,7 @@ macro_rules! impl_op_ex {
         _parse_binary_op!($op, $lhs, $rhs, $out, lhs, rhs, {|$lhs_i : &$lhs, $rhs_i : $rhs| -> $out {$body} (&lhs, rhs)});
     );
     ($op:tt |$lhs_i:ident : $lhs:path|  -> $out:path $body:block) => (
-        _parse_unary_op!($op, $lhs, $out, |$lhs_i : $lhs| -> $out {$body});
+        _parse_unary_op!($op, $lhs, $out, lhs, {|$lhs_i : $lhs| -> $out {$body} (lhs)});
     );
     ($op:tt |$lhs_i:ident : $lhs:path, $rhs_i:ident : &$rhs:path| -> $out:path $body:block) => (
         impl_op!($op |$lhs_i : $lhs, $rhs_i : &$rhs| -> $out $body);
@@ -243,21 +243,23 @@ macro_rules! _impl_assignment_op_internal {
 
 #[macro_export]
 macro_rules! _impl_unary_op_internal {
-    ($ops_trait:ident, $ops_fn:ident, &$lhs:ty, $out:ty, $fn:expr) => (        
+    ($ops_trait:ident, $ops_fn:ident, &$lhs:ty, $out:ty, $lhs_i:ident, $body:block) => (        
         impl<'a> ops::$ops_trait for &'a $lhs {
             type Output = $out;
 
             fn $ops_fn(self) -> Self::Output {
-                $fn(self)
+                let $lhs_i = self;
+                $body
             }
         }
     );
-    ($ops_trait:ident, $ops_fn:ident, $lhs:ty, $out:ty, $fn:expr) => (        
+    ($ops_trait:ident, $ops_fn:ident, $lhs:ty, $out:ty, $lhs_i:ident, $body:block) => (        
         impl ops::$ops_trait for $lhs {
             type Output = $out;
 
             fn $ops_fn(self) -> Self::Output {
-                $fn(self)
+                let $lhs_i = self;
+                $body
             }
         }
     );

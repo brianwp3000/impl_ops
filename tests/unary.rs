@@ -1,5 +1,5 @@
-// #![feature(trace_macros)]
-// trace_macros!(true);
+//#![feature(trace_macros)]
+//trace_macros!(true);
 
 #[macro_use]
 extern crate impl_ops;
@@ -7,6 +7,17 @@ extern crate impl_ops;
 use std::ops;
 
 mod kong {
+    #[derive(Clone, Copy, Debug, Default, PartialEq)]
+    pub struct Barrel<T> {
+        pub bananas: T,
+    }
+
+    impl<T> Barrel<T> {
+        pub fn new(bananas: T) -> Barrel<T> {
+            Barrel { bananas }
+        }
+    }
+
     #[derive(Clone, Copy, Debug, Default, PartialEq)]
     pub struct Donkey {
         pub bananas: i32,
@@ -19,51 +30,90 @@ mod kong {
     }
 
     #[derive(Clone, Copy, Debug, Default, PartialEq)]
-    pub struct Diddy<T> {
-        pub bananas: T,
+    pub struct Diddy {
+        pub bananas: i32,
     }
 
-    impl Diddy<i32> {
-        pub fn new(bananas: i32) -> Diddy<i32> {
+    impl Diddy {
+        pub fn new(bananas: i32) -> Diddy {
             Diddy { bananas }
         }
     }
-}
 
-impl_op!(- |a: &kong::Donkey| -> kong::Diddy<i32> {
-    let lhs = a;
-    kong::Diddy::<i32>::new(lhs.bananas)
-});
-impl_op!(! |a: &kong::Donkey| -> kong::Diddy<i32> { kong::Diddy::<i32>::new(a.bananas)});
+    #[derive(Clone, Copy, Debug, Default, PartialEq)]
+    pub struct Dixie {
+        pub bananas: i32,
+    }
 
-impl_op!(- |a: kong::Diddy<i32>| -> kong::Donkey {
-    let lhs = a;
-    kong::Donkey::new(lhs.bananas)
-});
-
-macro_rules! impl_op_test {
-    ($test:ident, $op:tt($lhs:expr) -> ($expected:expr)) => (
-        #[test]
-        fn $test() {
-            let lhs = $lhs;
-            let expected = $expected;
-
-            let actual = $op lhs;
-            assert_eq!(expected, actual, "<op> owned");
-            let actual = $op &lhs;
-            assert_eq!(expected, actual, "<op> borrowed");
+    impl Dixie {
+        pub fn new(bananas: i32) -> Dixie {
+            Dixie { bananas }
         }
-    );
+    }
 }
 
-impl_op_test!(neg, -(kong::Donkey::new(2)) -> (kong::Diddy::<i32>::new(2)));
-impl_op_test!(not, !(kong::Donkey::new(2)) -> (kong::Diddy::<i32>::new(2)));
+mod impl_op_operators {
+    use super::*;
 
-#[test]
-fn owned() {
-    let lhs = kong::Diddy::<i32>::new(2);
-    let expected = kong::Donkey::new(2);
+    impl_op!(! |a: kong::Donkey| -> kong::Diddy { kong::Diddy::new(a.bananas) });
+    #[test]
+    fn not() {
+        assert_eq!(kong::Diddy::new(3), !kong::Donkey::new(3));
+    }
 
-    let actual = -lhs;
-    assert_eq!(expected, actual, "<op> owned");
+    impl_op!(- |a: kong::Donkey| -> kong::Diddy { kong::Diddy::new(-a.bananas) });
+    #[test]
+    fn neg() {
+        assert_eq!(kong::Diddy::new(-3), -kong::Donkey::new(3));
+    }
+}
+
+mod impl_op_variants {
+    use super::*;
+
+    impl_op!(! |a: kong::Diddy| -> kong::Dixie { kong::Dixie::new(a.bananas) });
+    #[test]
+    fn owned() {
+        assert_eq!(kong::Dixie::new(4), !kong::Diddy::new(4));
+    }
+
+    impl_op!(! |a: &kong::Diddy| -> kong::Dixie { kong::Dixie::new(a.bananas) });
+    #[test]
+    fn borrowed() {
+        assert_eq!(kong::Dixie::new(4), !&kong::Diddy::new(4));
+    }
+}
+
+mod impl_op_ex_variants {
+    use super::*;
+
+    impl_op_ex!(! |a: kong::Dixie| -> kong::Donkey { kong::Donkey::new(a.bananas) });
+    #[test]
+    fn owned() {
+        assert_eq!(kong::Donkey::new(4), !kong::Dixie::new(4));
+    }
+
+    impl_op_ex!(- |a: &kong::Dixie| -> kong::Donkey { kong::Donkey::new(-a.bananas) });
+    #[test]
+    fn borrowed() {
+        assert_eq!(kong::Donkey::new(-4), -&kong::Dixie::new(4));
+        assert_eq!(kong::Donkey::new(-4), -kong::Dixie::new(4));
+    }
+}
+
+mod generics {
+    use super::*;
+
+    impl_op!(! |a: kong::Barrel<u32>| -> kong::Barrel<i32> { kong::Barrel::new(a.bananas as i32) });
+    #[test]
+    fn impl_op() {
+        assert_eq!(kong::Barrel::new(3), !kong::Barrel::new(3u32));
+    }
+
+    impl_op_ex!(- |a: &kong::Barrel<u32>| -> kong::Barrel<i32> { kong::Barrel::new(-(a.bananas as i32)) });
+    #[test]
+    fn impl_op_ex() {
+        assert_eq!(kong::Barrel::new(-3), -&kong::Barrel::new(3u32));
+        assert_eq!(kong::Barrel::new(-3), -kong::Barrel::new(3u32));
+    }
 }
