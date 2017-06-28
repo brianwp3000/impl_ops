@@ -13,6 +13,7 @@ macro_rules! _parse_binary_op {
     (>>, $($t:tt)+) => (_impl_binary_op_internal!(Shr, shr, $($t)+););
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! _impl_binary_op_internal {
     ($ops_trait:ident, $ops_fn:ident, &$lhs:ty, &$rhs:ty, $out:ty, $lhs_i:ident, $rhs_i:ident, $body:block) => (
@@ -29,6 +30,7 @@ macro_rules! _impl_binary_op_internal {
     );
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! _impl_binary_op_owned_owned {
     ($ops_trait:ident, $ops_fn:ident, $lhs:ty, $rhs:ty, $out:ty, $lhs_i:ident, $rhs_i:ident, $body:block) => (
@@ -44,6 +46,7 @@ macro_rules! _impl_binary_op_owned_owned {
     );
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! _impl_binary_op_owned_borrowed {
     ($ops_trait:ident, $ops_fn:ident, $lhs:ty, $rhs:ty, $out:ty, $lhs_i:ident, $rhs_i:ident, $body:block) => (
@@ -59,6 +62,7 @@ macro_rules! _impl_binary_op_owned_borrowed {
     );
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! _impl_binary_op_borrowed_owned {
     ($ops_trait:ident, $ops_fn:ident, $lhs:ty, $rhs:ty, $out:ty, $lhs_i:ident, $rhs_i:ident, $body:block) => (
@@ -74,6 +78,7 @@ macro_rules! _impl_binary_op_borrowed_owned {
     );
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! _impl_binary_op_borrowed_borrowed {
     ($ops_trait:ident, $ops_fn:ident, $lhs:ty, $rhs:ty, $out:ty, $lhs_i:ident, $rhs_i:ident, $body:block) => (
