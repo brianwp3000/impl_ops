@@ -117,3 +117,26 @@ mod generics {
         assert_eq!(kong::Barrel::new(-3), -kong::Barrel::new(3u32));
     }
 }
+
+mod multiline {
+    use super::*;
+
+    impl_op!(! |a: kong::Barrel<i32>| -> kong::Donkey {
+        let bananas = a.bananas; 
+        kong::Donkey::new(bananas) 
+    });
+    #[test]
+    fn impl_op() {
+        assert_eq!(kong::Donkey::new(3), !kong::Barrel::new(3));
+    }
+
+    impl_op_ex!(- |a: &kong::Barrel<i32>| -> kong::Donkey { 
+        let bananas = a.bananas;
+        kong::Donkey::new(-bananas) 
+    });
+    #[test]
+    fn impl_op_ex() {
+        assert_eq!(kong::Donkey::new(-3), -&kong::Barrel::new(3));
+        assert_eq!(kong::Donkey::new(-3), -kong::Barrel::new(3));
+    }
+}

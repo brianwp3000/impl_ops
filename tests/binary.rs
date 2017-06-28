@@ -289,3 +289,55 @@ mod generics {
         assert_eq!(kong::Barrel::new((2 & 1) as f32), &kong::Barrel::new(1u32) & &kong::Barrel::new(2));
     }
 }
+
+mod multiline {
+    use super::*;
+
+    impl_op!(- |a: kong::Donkey, b: kong::Barrel<i32>| -> kong::Donkey { 
+        let ret = kong::Donkey::new(a.bananas - b.bananas);
+        ret 
+    });
+    #[test]
+    fn impl_op() {
+        assert_eq!(kong::Donkey::new(1 - 2), kong::Donkey::new(1) - kong::Barrel::new(2));
+    }
+
+    impl_op_commutative!(+ |a: kong::Donkey, b: kong::Barrel<i32>| -> kong::Donkey { 
+        let ret = kong::Donkey::new(a.bananas + b.bananas);
+        ret 
+    });
+    #[test]
+    fn impl_op_commutative() {
+        assert_eq!(kong::Donkey::new(1 + 2), kong::Donkey::new(1) + kong::Barrel::new(2));
+        assert_eq!(kong::Donkey::new(2 + 1), kong::Barrel::new(1) + kong::Donkey::new(2));
+    }
+
+    impl_op_ex!(/ |a: &kong::Donkey, b: &kong::Barrel<i32>| -> kong::Donkey { 
+        let ret = kong::Donkey::new(a.bananas / b.bananas);
+        ret
+    });
+    #[test]
+    fn impl_op_ex() {
+        assert_eq!(kong::Donkey::new(1 / 2), kong::Donkey::new(1) / kong::Barrel::new(2));
+        assert_eq!(kong::Donkey::new(1 / 2), kong::Donkey::new(1) / &kong::Barrel::new(2));
+        assert_eq!(kong::Donkey::new(1 / 2), &kong::Donkey::new(1) / kong::Barrel::new(2));
+        assert_eq!(kong::Donkey::new(1 / 2), &kong::Donkey::new(1) / &kong::Barrel::new(2));
+    }
+
+    impl_op_ex_commutative!(* |a: &kong::Donkey, b: &kong::Barrel<i32>| -> kong::Donkey { 
+        let ret = kong::Donkey::new(a.bananas * b.bananas);
+        ret
+    });
+    #[test]
+    fn impl_op_ex_commutative() {
+        assert_eq!(kong::Donkey::new(1 * 2), kong::Donkey::new(1) * kong::Barrel::new(2));
+        assert_eq!(kong::Donkey::new(1 * 2), kong::Donkey::new(1) * &kong::Barrel::new(2));
+        assert_eq!(kong::Donkey::new(1 * 2), &kong::Donkey::new(1) * kong::Barrel::new(2));
+        assert_eq!(kong::Donkey::new(1 * 2), &kong::Donkey::new(1) * &kong::Barrel::new(2));
+
+        assert_eq!(kong::Donkey::new(2 * 1), kong::Barrel::new(1) * kong::Donkey::new(2));
+        assert_eq!(kong::Donkey::new(2 * 1), kong::Barrel::new(1) * &kong::Donkey::new(2));
+        assert_eq!(kong::Donkey::new(2 * 1), &kong::Barrel::new(1) * kong::Donkey::new(2));
+        assert_eq!(kong::Donkey::new(2 * 1), &kong::Barrel::new(1) * &kong::Donkey::new(2));
+    }
+}
