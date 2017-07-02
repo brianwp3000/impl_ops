@@ -1,10 +1,125 @@
-//#![feature(trace_macros)]
-//trace_macros!(true);
+//! Macros for easy operator overloading.
+//! 
+//! The primary macro to learn is `impl_op!(<op> <closure>);`
+//! where `<op>` is an operator and `<closure>` is a closure with the same signature as the trait function associated with `<op>`.
+//! The macro you'll actually want to use most of the time, however, is [`impl_op_ex!`](macro.impl_op_ex.html). It works the same way as `impl_op!` but with some extra magic behind the scenes.
+//!
+//! To use, include `#[macro_use] extern crate impl_ops;` in your crate and `use std::ops;` in your module. Remember that you can only overload operators between one or more types defined in the current crate.
+//! # Examples
+//! All of the following examples are run with the following struct defined:
+//!
+//! ```
+//! #[derive(Clone, Debug, PartialEq)]
+//! struct DonkeyKong {
+//!     pub bananas: i32,
+//! }
+//! impl DonkeyKong {
+//!     pub fn new(bananas: i32) -> DonkeyKong {
+//!         DonkeyKong { bananas: bananas }
+//!     }
+//! }
+//! ```
+//! ## Binary operators
+//!
+//! ```
+//! // impl_op!(op |a: LHS, b: RHS| -> OUT {...});
+//! // impl_op!(op |a: LHS, b: &RHS| -> OUT {...});
+//! // impl_op!(op |a: &LHS, b: RHS| -> OUT {...});
+//! // impl_op!(op |a: &LHS, b: &RHS| -> OUT {...});
+//! // where
+//! // OP  : +, -, *, /, %, &, |, ^, <<, >>
+//! // a, b: variable names
+//! 
+//! #[macro_use] extern crate impl_ops;
+//! use std::ops;
+//! # #[derive(Clone, Debug, PartialEq)]
+//! # struct DonkeyKong {
+//! #     pub bananas: i32,
+//! # }
+//! # impl DonkeyKong {
+//! #     pub fn new(bananas: i32) -> DonkeyKong {
+//! #         DonkeyKong { bananas: bananas }
+//! #     }
+//! # }
+//!
+//! impl_op!(- |a: DonkeyKong, b: i32| -> DonkeyKong { DonkeyKong::new(a.bananas - b) });
+//! impl_op!(+ |a: &DonkeyKong, b: &DonkeyKong| -> i32 { a.bananas + b.bananas });
+//!
+//! fn main() {
+//!     let dk = DonkeyKong::new(3) - 1;
+//!     assert_eq!(DonkeyKong::new(2), dk);
+//!     let total_bananas = &dk + &DonkeyKong::new(4);
+//!     assert_eq!(6, total_bananas);
+//! }
+//! ```
+//! ## Assignment operators
+//! ```
+//! // impl_op!(OP |a: &mut LHS, b: RHS| {...});
+//! // impl_op!(op |a: &mut LHS, b: &RHS| {...})
+//! // where
+//! // op  : +=, -=, *=, /=, %=, &=, |=, ^=, <<=, >>=
+//! // a, b: variable names
+//! 
+//! #[macro_use] extern crate impl_ops;
+//! use std::ops;
+//! # #[derive(Clone, Debug, PartialEq)]
+//! # struct DonkeyKong {
+//! #     pub bananas: i32,
+//! # }
+//! # impl DonkeyKong {
+//! #     pub fn new(bananas: i32) -> DonkeyKong {
+//! #         DonkeyKong { bananas: bananas }
+//! #     }
+//! # }
+//!
+//! impl_op!(+= |a: &mut DonkeyKong, b: DonkeyKong| { a.bananas += b.bananas });
+//! impl_op!(+= |a: &mut DonkeyKong, b: &DonkeyKong| { a.bananas += b.bananas });
+//!
+//! fn main() {
+//!     let mut dk = DonkeyKong::new(3);
+//!     dk += DonkeyKong::new(1);
+//!     assert_eq!(DonkeyKong::new(4), dk);
+//!     dk += &DonkeyKong::new(1);
+//!     assert_eq!(DonkeyKong::new(5), dk);
+//! }
+//! ```
+//! ## Unary operators
+//! ```
+//! // impl_op!(OP |a: LHS| -> OUT {...});
+//! // impl_op!(op |a: &LHS| -> OUT {...})
+//! // where
+//! // OP: !, -
+//! // a : variable name
+//!
+//! #[macro_use] extern crate impl_ops;
+//! use std::ops;
+//! # #[derive(Clone, Debug, PartialEq)]
+//! # struct DonkeyKong {
+//! #     pub bananas: i32,
+//! # }
+//! # impl DonkeyKong {
+//! #     pub fn new(bananas: i32) -> DonkeyKong {
+//! #         DonkeyKong { bananas: bananas }
+//! #     }
+//! # }
+//!
+//! impl_op!(- |a: DonkeyKong| -> DonkeyKong { DonkeyKong::new(-a.bananas) });
+//! impl_op!(- |a: &DonkeyKong| -> DonkeyKong { DonkeyKong::new(-a.bananas) });
+//!
+//! fn main() {
+//!     let dk = -DonkeyKong::new(3);
+//!     assert_eq!(DonkeyKong::new(-3), dk);
+//!     assert_eq!(DonkeyKong::new(3), -&dk);
+//! }
+//! ```
 
 mod assignment;
 mod binary;
 mod unary;
 
+/// Overloads an operator using the given closure as its body.
+///
+/// See the [module level documentation](index.html) for more information.
 #[macro_export]
 macro_rules! impl_op {
     ($op:tt |$lhs_i:ident : &mut $lhs:path, $rhs_i:ident : &$rhs:path| $body:block) => (
@@ -33,6 +148,55 @@ macro_rules! impl_op {
     );
 }
 
+/// Overloads an operator using the given closure as its body. Generates overloads for both owned and borrowed variants where possible.
+/// 
+/// Used with the same syntax as `impl_op!` (see the [module level documentation](index.html) for more information).
+///
+/// Expands any borrowed inputs into both owned and borrowed variants.
+///
+/// `impl_op_ex!(op |a: &LHS, b: &RHS| -> OUT {...});`
+/// gets expanded to
+///
+/// ```ignore
+/// impl_op!(op |a: LHS, b: RHS| -> OUT {...});
+/// impl_op!(op |a: LHS, b: &RHS| -> OUT {...});
+/// impl_op!(op |a: &LHS, b: RHS| -> OUT {...});
+/// impl_op!(op |a: &LHS, b: &RHS| -> OUT {...});
+/// ```
+/// 
+/// and `impl_op_ex!(op |a: &LHS, b: RHS| -> OUT {...});`
+/// gets expanded to
+///
+/// ```ignore
+/// impl_op!(op |a: LHS, b: RHS| -> OUT {...});
+/// impl_op!(op |a: &LHS, b: RHS| -> OUT {...});
+/// ```
+/// # Examples
+/// ```
+/// #[macro_use] extern crate impl_ops;
+/// use std::ops;
+/// # #[derive(Clone, Debug, PartialEq)]
+/// # struct DonkeyKong {
+/// #     pub bananas: i32,
+/// # }
+/// # impl DonkeyKong {
+/// #     pub fn new(bananas: i32) -> DonkeyKong {
+/// #         DonkeyKong { bananas: bananas }
+/// #     }
+/// #  }
+///
+/// impl_op_ex!(+ |a: &DonkeyKong, b: &DonkeyKong| -> i32 { a.bananas + b.bananas });
+///
+/// fn main() {
+///     let total_bananas = &DonkeyKong::new(2) + &DonkeyKong::new(4);
+///     assert_eq!(6, total_bananas);
+///     let total_bananas = &DonkeyKong::new(2) + DonkeyKong::new(4);
+///     assert_eq!(6, total_bananas);
+///     let total_bananas = DonkeyKong::new(2) + &DonkeyKong::new(4);
+///     assert_eq!(6, total_bananas);
+///     let total_bananas = DonkeyKong::new(2) + DonkeyKong::new(4);
+///     assert_eq!(6, total_bananas);
+/// }
 #[macro_export]
 macro_rules! impl_op_ex {
     ($op:tt |$lhs_i:ident : &mut $lhs:path, $rhs_i:ident : &$rhs:path| $body:block) => (
@@ -68,6 +232,56 @@ macro_rules! impl_op_ex {
     );
 }
 
+/// Overloads a binary operator commutatively using the given closure as its body.
+/// 
+/// Used with the same syntax as `impl_op!` (see the [module level documentation](index.html) for more information).
+/// Can only be used with binary operators, and the operation must be between two different types.
+///
+/// An operator is commutative if A <op> B == B <op> A. Common commutative operators are `+` and `*`.
+///
+/// ```ignore
+/// impl_op_commutative!(op |a: LHS, b: RHS| -> OUT {...});
+/// // where LHS != RHS
+/// ```
+///
+/// gets expanded to
+///
+/// ```ignore
+/// impl_op!(op |a: LHS, b: RHS| -> OUT {...});
+/// impl_op!(op |a: RHS, b: LHS| -> OUT {...});
+/// ```
+/// Make sure that LHS != RHS, and that the operator you are trying to overload is a commutative one.
+/// See the examples for what happens when you try `impl_op_commutative!` on the `-` operator (which isn't usually commutative).
+/// # Examples
+/// ```
+/// #[macro_use] extern crate impl_ops;
+/// use std::ops;
+/// # #[derive(Clone, Debug, PartialEq)]
+/// # struct DonkeyKong {
+/// #     pub bananas: i32,
+/// # }
+/// # impl DonkeyKong {
+/// #     pub fn new(bananas: i32) -> DonkeyKong {
+/// #         DonkeyKong { bananas: bananas }
+/// #     }
+/// #  }
+///
+/// impl_op_commutative!(+ |a: DonkeyKong, b: i32| -> i32 { a.bananas + b });
+/// // Don't do this unless you know what you are doing:
+/// impl_op_commutative!(- |a: DonkeyKong, b: i32| -> i32 { a.bananas - b });
+///
+/// fn main() {
+///     let total_bananas = DonkeyKong::new(5) + 1;
+///     assert_eq!(6, total_bananas);
+///     let total_bananas = 1 + DonkeyKong::new(5);
+///     assert_eq!(6, total_bananas);
+///     let total_bananas = DonkeyKong::new(5) - 1;
+///     assert_eq!(4, total_bananas);
+///     let total_bananas = 1 - DonkeyKong::new(5);
+///     assert_eq!(4, total_bananas);
+///     // notice that in this case (5 - 1 == 4) and (1 - 5 == 1): that is the definition of a 
+///     // commutative operator, but probably not what you want for the '-' operator
+/// }
 #[macro_export]
 macro_rules! impl_op_commutative {
     ($op:tt |$lhs_i:ident : &$lhs:path, $rhs_i:ident : &$rhs:path| -> $out:path $body:block) => (
@@ -88,6 +302,85 @@ macro_rules! impl_op_commutative {
     );
 }
 
+/// Overloads a binary operator commutatively using the given closure as its body. Generates overloads for both owned and borrowed variants where possible.
+///
+/// See [`impl_op_commutative!`](macro.impl_op_commutative.html) for usage.
+///
+/// Expands borrowed inputs to both borrowed and owned variants.
+///
+/// ```ignore
+/// impl_op_ex_commutative!(op |a: &LHS, b: &RHS| -> OUT {...});
+/// // where LHS != RHS
+/// ```
+///
+/// gets expanded to
+///
+/// ```ignore
+/// impl_op!(op |a: &LHS, b: &RHS| -> OUT {...});
+/// impl_op!(op |a: &LHS, b: RHS| -> OUT {...});
+/// impl_op!(op |a: LHS, b: &RHS| -> OUT {...});
+/// impl_op!(op |a: LHS, b: RHS| -> OUT {...});
+///
+/// impl_op!(op |a: &RHS, b: &LHS| -> OUT {...});
+/// impl_op!(op |a: &RHS, b: LHS| -> OUT {...});
+/// impl_op!(op |a: RHS, b: &LHS| -> OUT {...});
+/// impl_op!(op |a: RHS, b: LHS| -> OUT {...});
+/// ```
+/// # Examples
+/// ```
+/// #[macro_use] extern crate impl_ops;
+/// use std::ops;
+/// # #[derive(Clone, Debug, PartialEq)]
+/// # struct DonkeyKong {
+/// #     pub bananas: i32,
+/// # }
+/// # impl DonkeyKong {
+/// #     pub fn new(bananas: i32) -> DonkeyKong {
+/// #         DonkeyKong { bananas: bananas }
+/// #     }
+/// #  }
+/// # #[derive(Clone, Debug, PartialEq)]
+/// # struct DiddyKong {
+/// #     pub bananas: i32,
+/// # }
+/// # impl DiddyKong {
+/// #     pub fn new(bananas: i32) -> DiddyKong {
+/// #         DiddyKong { bananas: bananas }
+/// #     }
+/// #  }
+///
+/// impl_op_ex_commutative!(+ |a: &DonkeyKong, b: &DiddyKong| -> i32 { a.bananas + b.bananas });
+/// impl_op_ex_commutative!(+ |a: &DonkeyKong, b: i32| -> i32 { a.bananas + b });
+///
+/// fn main() {
+///     let total_bananas = &DonkeyKong::new(5) + &DiddyKong::new(1);
+///     assert_eq!(6, total_bananas);
+///     let total_bananas = &DonkeyKong::new(5) + DiddyKong::new(1);
+///     assert_eq!(6, total_bananas);
+///     let total_bananas = DonkeyKong::new(5) + &DiddyKong::new(1);
+///     assert_eq!(6, total_bananas);
+///     let total_bananas = DonkeyKong::new(5) + DiddyKong::new(1);
+///     assert_eq!(6, total_bananas);
+///
+///     let total_bananas = &DiddyKong::new(1) + &DonkeyKong::new(5);
+///     assert_eq!(6, total_bananas);
+///     let total_bananas = &DiddyKong::new(1) + DonkeyKong::new(5);
+///     assert_eq!(6, total_bananas);
+///     let total_bananas = DiddyKong::new(1) + &DonkeyKong::new(5);
+///     assert_eq!(6, total_bananas);
+///     let total_bananas = DiddyKong::new(1) + DonkeyKong::new(5);
+///     assert_eq!(6, total_bananas);
+///
+///     let total_bananas = &DonkeyKong::new(5) + 1;
+///     assert_eq!(6, total_bananas);
+///     let total_bananas = DonkeyKong::new(5) + 1;
+///     assert_eq!(6, total_bananas);
+///
+///     let total_bananas = 1 + &DonkeyKong::new(5);
+///     assert_eq!(6, total_bananas);
+///     let total_bananas = 1 + DonkeyKong::new(5);
+///     assert_eq!(6, total_bananas);
+/// }
 #[macro_export]
 macro_rules! impl_op_ex_commutative {
     ($op:tt |$lhs_i:ident : &$lhs:path, $rhs_i:ident : &$rhs:path| -> $out:path $body:block) => (
