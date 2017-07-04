@@ -3,83 +3,43 @@
 [Build Status]: https://api.travis-ci.org/brianwp3000/impl_ops.svg?branch=master
 [travis]: https://travis-ci.org/brianwp3000/impl_ops
 
-Macros for overloading operators easily in Rust.
+Macros for easy operator overloading.
 
-The ```impl_op!``` macro expands an operator and a closure a trait implementation for the relevant type. If either type is a reference, it creates trait implementations for both owned and borrowed variants of the type.
+[Documentation](#TODO)
 
-The ```impl_op_commutative!``` macro can be used with commutative binary operations of two different types. 
+This library make writing multiple `impl std::ops::<op>` blocks much faster, especially when you want operators defined for both owned and borrowed variants of the inputs.
 
-## Usage
+To use, include `#[macro_use] extern crate impl_ops;` in your crate and `use std::ops;` in your module. Remember that you can only overload operators between one or more types defined in the current crate.
+# Examples
 ```rust
-#[macro_use]
-extern crate impl_ops;
-
+#[macro_use] extern crate impl_ops;
 use std::ops;
 
-#[derive(Clone, Debug)]
-struct Barrel {
-  pub bananas: i32,
+#[derive(Clone, Debug, PartialEq)]
+struct DonkeyKong {
+    pub bananas: i32,
+}
+impl DonkeyKong {
+    pub fn new(bananas: i32) -> DonkeyKong {
+        DonkeyKong { bananas: bananas }
+    }
 }
 
-// Binary operators:
-// impl_op!(<OP> |a: <LHS>, b: <RHS>| -> OUT {<BODY>});
-
-impl_op!(+ |a: &Barrel, b: &Barrel| -> Barrel { 
-  Barrel { bananas: a.bananas + b.bananas }
-});
-
-// Commutative binary operators:
-// impl_op!(<OP> |a: <LHS>, b: <RHS>| -> OUT {<BODY>});
-// (where LHS != RHS)
-
-impl_op!(+ |a: &Barrel, b: i32| -> Barrel { 
-  Barrel { bananas: a.bananas + b }
-});
-
-// Assignment operators:
-// impl_op!(<OP> |a: &mut <LHS>, b: <RHS>| {<BODY>});
-
-impl_op!(+= |a: &mut Barrel, b: &Barrel| { 
-  a.bananas += b.bananas;
-});
-
-// Unary operators (-, !):
-// impl_op!(<OP> |a: <LHS>| -> <OUT> {<BODY>});
-
-impl_op!(- |a: &Barrel| -> Barrel { 
-  Barrel { bananas = -a.bananas }
-});
+impl_op_ex!(+ |a: &DonkeyKong, b: &DonkeyKong| -> DonkeyKong { DonkeyKong::new(a.bananas + b.bananas) });
+impl_op_ex!(+= |a: &mut DonkeyKong, b: &DonkeyKong| { a.bananas += b.bananas });
 
 fn main() {
-  let b1 = Barrel { bananas: 1 };
-  let b2 = Barrel { bananas: 2 };
-  
-  // binary
-  println!("{:?}", b1.clone() + b2.clone());
-  println!("{:?}", b1.clone() + &b2);
-  println!("{:?}", &b1 + b2.clone());
-  println!("{:?}", &b1 + &b2);
-  
-  // commutative binary
-  println!("{:?}", b1.clone() + 1);
-  println!("{:?}", 1 + b2.clone());
-  
-  // assignment
-  b1 += b2.clone();
-  println!("{:?}", b1);
-  b1 += &b2;
-  println!("{:?}", b1);
-  
-  // unary
-  println!("{:?}", -b1.clone());
-  println!("{:?}", -&b1);
+    assert_eq!(DonkeyKong::new(5), DonkeyKong::new(4) + DonkeyKong::new(1));
+    assert_eq!(DonkeyKong::new(5), DonkeyKong::new(4) + &DonkeyKong::new(1));
+    assert_eq!(DonkeyKong::new(5), &DonkeyKong::new(4) + DonkeyKong::new(1));
+    assert_eq!(DonkeyKong::new(5), &DonkeyKong::new(4) + &DonkeyKong::new(1));
+
+    let mut dk = DonkeyKong::new(4);
+    dk += DonkeyKong::new(1);
+    dk += &DonkeyKong::new(1);
+    assert_eq!(DonkeyKong::new(6), dk);
 }
 ```
 
-## Limitations
-- Index, IndexMut, Deref, and DerefMut haven't been implemented yet
-- Generics aren't supported, i.e.
-```rust
-impl_op!(+ |a: &Barrel<T>, b &Barrel<T>| -> Barrel<T> {...}); // BAD
-impl_op!(+ |a: &Barrel<i32>, b &Barrel<i32>| -> Barrel<i32> {...}); // GOOD
-```
+# Roadmap
+The syntax is essentially finished, but I still need to implement `Index`, `IndexMut`, `Deref`, and `DerefMut`. I'm already using this in a few personal projects, but I want to make sure it works in more real-world scenarios before committing to maintain a stable API. 

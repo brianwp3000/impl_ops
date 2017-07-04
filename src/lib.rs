@@ -112,7 +112,15 @@
 //!     assert_eq!(DonkeyKong::new(3), -&dk);
 //! }
 //! ```
-
+//! # Limitations
+//! * The output type of any operation must be an owned type (i.e. `impl_op!(+ |a: DonkeyKong b: i32| -> &DonkeyKong {...})` is invalid).
+//! * Types that have an unqualified lifetime or associated type are invalid
+//! 
+//! ```ignore
+//! // impl_op!(+ |a: SomeType<'a>, b: SomeType<'a>| -> SomeType<'a> {...}) // INVALID
+//! // impl_op!(+ |a: SomeType<T>, b: SomeType<T>| -> SomeType<T> {...})    // INVALID
+//! impl_op!(+ |a: SomeType<i32>, b: SomeType<i32>| -> SomeType<i32> {...}) // VALID
+//! ```
 mod assignment;
 mod binary;
 mod unary;
