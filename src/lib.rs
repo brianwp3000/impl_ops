@@ -1,4 +1,4 @@
-//! Macros for easy operator overloading.
+/! Macros for easy operator overloading.
 //! 
 //! The primary macro to learn is `impl_op!(<op> <closure>);`
 //! where `<op>` is an operator and `<closure>` is a closure with the same signature as the trait function associated with `<op>`.
@@ -286,8 +286,7 @@ macro_rules! impl_op_ex {
 ///     let total_bananas = DonkeyKong::new(5) - 1;
 ///     assert_eq!(4, total_bananas);
 ///     let total_bananas = 1 - DonkeyKong::new(5);
-///     assert_eq!(4, total_bananas);
-///     // notice that in this case (5 - 1 == 4) and (1 - 5 == 1): that is the definition of a 
+///     assert_eq!(4, total_bananas);///     // notice that in this case (5 - 1 == 4) and (1 - 5 == 1): that is the definition of a 
 ///     // commutative operator, but probably not what you want for the '-' operator
 /// }
 #[macro_export]
@@ -307,7 +306,6 @@ macro_rules! impl_op_commutative {
     ($op:tt |$lhs_i:ident : $lhs:path, $rhs_i:ident : $rhs:path| -> $out:path $body:block) => (
         impl_op!($op |$lhs_i : $lhs, $rhs_i : $rhs| -> $out $body);
         _parse_binary_op!($op, $rhs, $lhs, $out, lhs, rhs, {|$lhs_i : $lhs, $rhs_i : $rhs| -> $out {$body} (rhs, lhs)});
-    );
 }
 
 /// Overloads a binary operator commutatively using the given closure as its body. Generates overloads for both owned and borrowed variants where possible.
@@ -317,8 +315,7 @@ macro_rules! impl_op_commutative {
 /// Expands borrowed inputs to both borrowed and owned variants.
 ///
 /// ```ignore
-/// impl_op_ex_commutative!(op |a: &LHS, b: &RHS| -> OUT {...});
-/// // where LHS != RHS
+/// impl_op_ex_commutative!(op |a: &LHS, b: &RHS| -> OUT {...});/// // where LHS != RHS
 /// ```
 ///
 /// gets expanded to
@@ -328,8 +325,7 @@ macro_rules! impl_op_commutative {
 /// impl_op!(op |a: &LHS, b: RHS| -> OUT {...});
 /// impl_op!(op |a: LHS, b: &RHS| -> OUT {...});
 /// impl_op!(op |a: LHS, b: RHS| -> OUT {...});
-///
-/// impl_op!(op |a: &RHS, b: &LHS| -> OUT {...});
+////// impl_op!(op |a: &RHS, b: &LHS| -> OUT {...});
 /// impl_op!(op |a: &RHS, b: LHS| -> OUT {...});
 /// impl_op!(op |a: RHS, b: &LHS| -> OUT {...});
 /// impl_op!(op |a: RHS, b: LHS| -> OUT {...});
@@ -339,8 +335,7 @@ macro_rules! impl_op_commutative {
 /// #[macro_use] extern crate impl_ops;
 /// use std::ops;
 /// # #[derive(Clone, Debug, PartialEq)]
-/// # struct DonkeyKong {
-/// #     pub bananas: i32,
+/// # struct DonkeyKong {/// #     pub bananas: i32,
 /// # }
 /// # impl DonkeyKong {
 /// #     pub fn new(bananas: i32) -> DonkeyKong {
@@ -350,8 +345,7 @@ macro_rules! impl_op_commutative {
 /// # #[derive(Clone, Debug, PartialEq)]
 /// # struct DiddyKong {
 /// #     pub bananas: i32,
-/// # }
-/// # impl DiddyKong {
+/// # }/// # impl DiddyKong {
 /// #     pub fn new(bananas: i32) -> DiddyKong {
 /// #         DiddyKong { bananas: bananas }
 /// #     }
@@ -361,8 +355,7 @@ macro_rules! impl_op_commutative {
 /// impl_op_ex_commutative!(+ |a: &DonkeyKong, b: i32| -> i32 { a.bananas + b });
 ///
 /// fn main() {
-///     let total_bananas = &DonkeyKong::new(5) + &DiddyKong::new(1);
-///     assert_eq!(6, total_bananas);
+///     let total_bananas = &DonkeyKong::new(5) + &DiddyKong::new(1);///     assert_eq!(6, total_bananas);
 ///     let total_bananas = &DonkeyKong::new(5) + DiddyKong::new(1);
 ///     assert_eq!(6, total_bananas);
 ///     let total_bananas = DonkeyKong::new(5) + &DiddyKong::new(1);
