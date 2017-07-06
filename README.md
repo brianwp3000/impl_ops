@@ -5,7 +5,7 @@
 
 Macros for easy operator overloading.
 
-[Documentation](#TODO)
+[Documentation](https://docs.rs/impl_ops/)
 
 This library make writing multiple `impl std::ops::<op>` blocks much faster, especially when you want operators defined for both owned and borrowed variants of the inputs.
 
