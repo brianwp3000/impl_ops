@@ -1,7 +1,9 @@
-# impl_ops [![Build Status]][travis]
+# impl_ops [![Build Status]][travis] [![Latest Version]][crates.io]
 
 [Build Status]: https://api.travis-ci.org/brianwp3000/impl_ops.svg?branch=master
 [travis]: https://travis-ci.org/brianwp3000/impl_ops
+[Latest Version]: https://img.shields.io/crates/v/impl_ops.svg
+[crates.io]: https://crates.io/crates/impl_ops
 
 Macros for easy operator overloading.
 
