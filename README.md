@@ -9,7 +9,7 @@ Macros for easy operator overloading.
 
 [Documentation](https://docs.rs/impl_ops/)
 
-This library make writing multiple `impl std::ops::<op>` blocks much faster, especially when you want operators defined for both owned and borrowed variants of the inputs.
+This library makes writing multiple `impl std::ops::<op>` blocks much faster, especially when you want operators defined for both owned and borrowed variants of the inputs.
 
 To use, include `#[macro_use] extern crate impl_ops;` in your crate and `use std::ops;` in your module. Remember that you can only overload operators between one or more types defined in the current crate.
 # Examples
