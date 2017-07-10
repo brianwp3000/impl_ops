@@ -341,3 +341,17 @@ mod multiline {
         assert_eq!(kong::Donkey::new(2 * 1), &kong::Barrel::new(1) * &kong::Donkey::new(2));
     }
 }
+
+fn do_bitor(a: &kong::Donkey, b: &kong::Dixie) -> kong::Diddy {
+    a | b
+}
+
+fn do_bitor_2(a: &kong::Dixie, b: &kong::Donkey) -> kong::Diddy {
+    a | b
+}
+
+#[test]
+fn infer_lifetimes() {
+    assert_eq!(kong::Diddy::new(1 | 2), do_bitor(&kong::Donkey::new(1), &kong::Dixie::new(2)));
+    assert_eq!(kong::Diddy::new(2 | 1), do_bitor_2(&kong::Dixie::new(1), &kong::Donkey::new(2)));
+}

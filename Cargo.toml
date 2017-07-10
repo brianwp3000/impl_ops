@@ -1,11 +1,11 @@
 [package]
 name = "impl_ops"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Brian Porter <brianwp3000@gmail.com>"]
 license="MIT"
 description = "Macros for easy operator overloading."
 keywords = ["macro", "operator", "overloading", "impl", "op"]
-categories = ["Rust patterns"]
+categories = ["rust-patterns"]
 repository = "https://github.com/brianwp3000/impl_ops"
 include = [
     "**/*.rs",
