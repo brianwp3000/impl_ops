@@ -1,6 +1,6 @@
 [package]
 name = "impl_ops"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Brian Porter <brianwp3000@gmail.com>"]
 license="MIT"
 description = "Macros for easy operator overloading."
