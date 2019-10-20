@@ -1,5 +1,5 @@
 //! Macros for easy operator overloading.
-//! 
+//!
 //! The primary macro to learn is `impl_op!(<op> <closure>);`
 //! where `<op>` is an operator and `<closure>` is a closure with the same signature as the trait function associated with `<op>`.
 //! The macro you'll actually want to use most of the time, however, is [`impl_op_ex!`](macro.impl_op_ex.html). It works the same way as `impl_op!` but with some extra magic behind the scenes.
@@ -29,7 +29,7 @@
 //! // where
 //! // OP  : +, -, *, /, %, &, |, ^, <<, >>
 //! // a, b: variable names
-//! 
+//!
 //! #[macro_use] extern crate impl_ops;
 //! use std::ops;
 //! # #[derive(Clone, Debug, PartialEq)]
@@ -59,7 +59,7 @@
 //! // where
 //! // op  : +=, -=, *=, /=, %=, &=, |=, ^=, <<=, >>=
 //! // a, b: variable names
-//! 
+//!
 //! #[macro_use] extern crate impl_ops;
 //! use std::ops;
 //! # #[derive(Clone, Debug, PartialEq)]
@@ -115,7 +115,7 @@
 //! # Limitations
 //! * The output type of any operation must be an owned type (i.e. `impl_op!(+ |a: DonkeyKong b: i32| -> &DonkeyKong {...})` is invalid).
 //! * Types that have an unqualified lifetime or associated type are invalid
-//! 
+//!
 //! ```ignore
 //! // impl_op!(+ |a: SomeType<'a>, b: SomeType<'a>| -> SomeType<'a> {...}) // INVALID
 //! // impl_op!(+ |a: SomeType<T>, b: SomeType<T>| -> SomeType<T> {...})    // INVALID
@@ -130,34 +130,50 @@ mod unary;
 /// See the [module level documentation](index.html) for more information.
 #[macro_export]
 macro_rules! impl_op {
-    ($op:tt |$lhs_i:ident : &mut $lhs:path, $rhs_i:ident : &$rhs:path| $body:block) => (
-        _parse_assignment_op!($op, $lhs, &$rhs, lhs, rhs, {|$lhs_i : &mut $lhs, $rhs_i : &$rhs| -> () {$body} (lhs, rhs);});
-    );
-    ($op:tt |$lhs_i:ident : &mut $lhs:path, $rhs_i:ident : $rhs:path| $body:block) => (
-        _parse_assignment_op!($op, $lhs, $rhs, lhs, rhs, {|$lhs_i : &mut $lhs, $rhs_i : $rhs| -> () {$body} (lhs, rhs);});
-    );
-    ($op:tt |$lhs_i:ident : &$lhs:path| -> $out:path $body:block) => (
-        _parse_unary_op!($op, &$lhs, $out, lhs, {|$lhs_i : &$lhs| -> $out {$body} (lhs)});
-    );
-    ($op:tt |$lhs_i:ident : &$lhs:path, $rhs_i:ident : &$rhs:path| -> $out:path $body:block) => (
-        _parse_binary_op!($op, &$lhs, &$rhs, $out, lhs, rhs, {|$lhs_i : &$lhs, $rhs_i : &$rhs| -> $out {$body} (lhs, rhs)});
-    );
-    ($op:tt |$lhs_i:ident : &$lhs:path, $rhs_i:ident : $rhs:path| -> $out:path $body:block) => (
-        _parse_binary_op!($op, &$lhs, $rhs, $out, lhs, rhs, {|$lhs_i : &$lhs, $rhs_i : $rhs| -> $out {$body} (lhs, rhs)});
-    );
-    ($op:tt |$lhs_i:ident : $lhs:path| -> $out:path $body:block) => (
-        _parse_unary_op!($op, $lhs, $out, lhs, {|$lhs_i : $lhs| -> $out {$body} (lhs)});
-    );
-    ($op:tt |$lhs_i:ident : $lhs:path, $rhs_i:ident : &$rhs:path| -> $out:path $body:block) => (
-        _parse_binary_op!($op, $lhs, &$rhs, $out, lhs, rhs, {|$lhs_i : $lhs, $rhs_i : &$rhs| -> $out {$body} (lhs, rhs)});
-    );
-    ($op:tt |$lhs_i:ident : $lhs:path, $rhs_i:ident : $rhs:path| -> $out:path $body:block) => (
-        _parse_binary_op!($op, $lhs, $rhs, $out, lhs, rhs, {|$lhs_i : $lhs, $rhs_i : $rhs| -> $out {$body} (lhs, rhs)});
-    );
+    ($op:tt |$lhs_i:ident : &mut $lhs:path, $rhs_i:ident : &$rhs:path| $body:block) => {
+        _parse_assignment_op!($op, $lhs, &$rhs, lhs, rhs, {
+            |$lhs_i: &mut $lhs, $rhs_i: &$rhs| -> () { $body }(lhs, rhs);
+        });
+    };
+    ($op:tt |$lhs_i:ident : &mut $lhs:path, $rhs_i:ident : $rhs:path| $body:block) => {
+        _parse_assignment_op!($op, $lhs, $rhs, lhs, rhs, {
+            |$lhs_i: &mut $lhs, $rhs_i: $rhs| -> () { $body }(lhs, rhs);
+        });
+    };
+    ($op:tt |$lhs_i:ident : &$lhs:path| -> $out:path $body:block) => {
+        _parse_unary_op!($op, &$lhs, $out, lhs, {
+            |$lhs_i: &$lhs| -> $out { $body }(lhs)
+        });
+    };
+    ($op:tt |$lhs_i:ident : &$lhs:path, $rhs_i:ident : &$rhs:path| -> $out:path $body:block) => {
+        _parse_binary_op!($op, &$lhs, &$rhs, $out, lhs, rhs, {
+            |$lhs_i: &$lhs, $rhs_i: &$rhs| -> $out { $body }(lhs, rhs)
+        });
+    };
+    ($op:tt |$lhs_i:ident : &$lhs:path, $rhs_i:ident : $rhs:path| -> $out:path $body:block) => {
+        _parse_binary_op!($op, &$lhs, $rhs, $out, lhs, rhs, {
+            |$lhs_i: &$lhs, $rhs_i: $rhs| -> $out { $body }(lhs, rhs)
+        });
+    };
+    ($op:tt |$lhs_i:ident : $lhs:path| -> $out:path $body:block) => {
+        _parse_unary_op!($op, $lhs, $out, lhs, {
+            |$lhs_i: $lhs| -> $out { $body }(lhs)
+        });
+    };
+    ($op:tt |$lhs_i:ident : $lhs:path, $rhs_i:ident : &$rhs:path| -> $out:path $body:block) => {
+        _parse_binary_op!($op, $lhs, &$rhs, $out, lhs, rhs, {
+            |$lhs_i: $lhs, $rhs_i: &$rhs| -> $out { $body }(lhs, rhs)
+        });
+    };
+    ($op:tt |$lhs_i:ident : $lhs:path, $rhs_i:ident : $rhs:path| -> $out:path $body:block) => {
+        _parse_binary_op!($op, $lhs, $rhs, $out, lhs, rhs, {
+            |$lhs_i: $lhs, $rhs_i: $rhs| -> $out { $body }(lhs, rhs)
+        });
+    };
 }
 
 /// Overloads an operator using the given closure as its body. Generates overloads for both owned and borrowed variants where possible.
-/// 
+///
 /// Used with the same syntax as `impl_op!` (see the [module level documentation](index.html) for more information).
 ///
 /// Expands any borrowed inputs into both owned and borrowed variants.
@@ -171,7 +187,7 @@ macro_rules! impl_op {
 /// impl_op!(op |a: &LHS, b: RHS| -> OUT {...});
 /// impl_op!(op |a: &LHS, b: &RHS| -> OUT {...});
 /// ```
-/// 
+///
 /// and `impl_op_ex!(op |a: &LHS, b: RHS| -> OUT {...});`
 /// gets expanded to
 ///
@@ -241,7 +257,7 @@ macro_rules! impl_op_ex {
 }
 
 /// Overloads a binary operator commutatively using the given closure as its body.
-/// 
+///
 /// Used with the same syntax as `impl_op!` (see the [module level documentation](index.html) for more information).
 /// Can only be used with binary operators, and the operation must be between two different types.
 ///
@@ -287,7 +303,7 @@ macro_rules! impl_op_ex {
 ///     assert_eq!(4, total_bananas);
 ///     let total_bananas = 1 - DonkeyKong::new(5);
 ///     assert_eq!(4, total_bananas);
-///     // notice that in this case (5 - 1 == 4) and (1 - 5 == 1): that is the definition of a 
+///     // notice that in this case (5 - 1 == 4) and (1 - 5 == 1): that is the definition of a
 ///     // commutative operator, but probably not what you want for the '-' operator
 /// }
 #[macro_export]

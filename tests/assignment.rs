@@ -204,7 +204,7 @@ mod multiline {
     use super::*;
 
     impl_op!(+= |a: &mut kong::Donkey, b: kong::Barrel<i32>| {
-        a.bananas += 0; 
+        a.bananas += 0;
         a.bananas += b.bananas;
     });
     #[test]
@@ -214,9 +214,9 @@ mod multiline {
         assert_eq!(kong::Donkey::new(3 + 2), dk);
     }
 
-    impl_op_ex!(-= |a: &mut kong::Donkey, b: &kong::Barrel<i32>| { 
+    impl_op_ex!(-= |a: &mut kong::Donkey, b: &kong::Barrel<i32>| {
         a.bananas += 0;
-        a.bananas -= b.bananas; 
+        a.bananas -= b.bananas;
     });
     #[test]
     fn impl_op_ex() {

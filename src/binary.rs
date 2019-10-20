@@ -16,24 +16,30 @@ macro_rules! _parse_binary_op {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! _impl_binary_op_internal {
-    ($ops_trait:ident, $ops_fn:ident, &$lhs:ty, &$rhs:ty, $out:ty, $lhs_i:ident, $rhs_i:ident, $body:block) => (
-        _impl_binary_op_borrowed_borrowed!($ops_trait, $ops_fn, $lhs, $rhs, $out, $lhs_i, $rhs_i, $body);
-    );
-    ($ops_trait:ident, $ops_fn:ident, &$lhs:ty, $rhs:ty, $out:ty, $lhs_i:ident, $rhs_i:ident, $body:block) => (
-        _impl_binary_op_borrowed_owned!($ops_trait, $ops_fn, $lhs, $rhs, $out, $lhs_i, $rhs_i, $body);
-    );
-    ($ops_trait:ident, $ops_fn:ident, $lhs:ty, &$rhs:ty, $out:ty, $lhs_i:ident, $rhs_i:ident, $body:block) => (
-        _impl_binary_op_owned_borrowed!($ops_trait, $ops_fn, $lhs, $rhs, $out, $lhs_i, $rhs_i, $body);
-    );
-    ($ops_trait:ident, $ops_fn:ident, $lhs:ty, $rhs:ty, $out:ty, $lhs_i:ident, $rhs_i:ident, $body:block) => (
+    ($ops_trait:ident, $ops_fn:ident, &$lhs:ty, &$rhs:ty, $out:ty, $lhs_i:ident, $rhs_i:ident, $body:block) => {
+        _impl_binary_op_borrowed_borrowed!(
+            $ops_trait, $ops_fn, $lhs, $rhs, $out, $lhs_i, $rhs_i, $body
+        );
+    };
+    ($ops_trait:ident, $ops_fn:ident, &$lhs:ty, $rhs:ty, $out:ty, $lhs_i:ident, $rhs_i:ident, $body:block) => {
+        _impl_binary_op_borrowed_owned!(
+            $ops_trait, $ops_fn, $lhs, $rhs, $out, $lhs_i, $rhs_i, $body
+        );
+    };
+    ($ops_trait:ident, $ops_fn:ident, $lhs:ty, &$rhs:ty, $out:ty, $lhs_i:ident, $rhs_i:ident, $body:block) => {
+        _impl_binary_op_owned_borrowed!(
+            $ops_trait, $ops_fn, $lhs, $rhs, $out, $lhs_i, $rhs_i, $body
+        );
+    };
+    ($ops_trait:ident, $ops_fn:ident, $lhs:ty, $rhs:ty, $out:ty, $lhs_i:ident, $rhs_i:ident, $body:block) => {
         _impl_binary_op_owned_owned!($ops_trait, $ops_fn, $lhs, $rhs, $out, $lhs_i, $rhs_i, $body);
-    );
+    };
 }
 
 #[doc(hidden)]
 #[macro_export]
 macro_rules! _impl_binary_op_owned_owned {
-    ($ops_trait:ident, $ops_fn:ident, $lhs:ty, $rhs:ty, $out:ty, $lhs_i:ident, $rhs_i:ident, $body:block) => (
+    ($ops_trait:ident, $ops_fn:ident, $lhs:ty, $rhs:ty, $out:ty, $lhs_i:ident, $rhs_i:ident, $body:block) => {
         impl ops::$ops_trait<$rhs> for $lhs {
             type Output = $out;
 
@@ -41,15 +47,14 @@ macro_rules! _impl_binary_op_owned_owned {
                 let $lhs_i = self;
                 $body
             }
-                
         }
-    );
+    };
 }
 
 #[doc(hidden)]
 #[macro_export]
 macro_rules! _impl_binary_op_owned_borrowed {
-    ($ops_trait:ident, $ops_fn:ident, $lhs:ty, $rhs:ty, $out:ty, $lhs_i:ident, $rhs_i:ident, $body:block) => (
+    ($ops_trait:ident, $ops_fn:ident, $lhs:ty, $rhs:ty, $out:ty, $lhs_i:ident, $rhs_i:ident, $body:block) => {
         impl<'a> ops::$ops_trait<&'a $rhs> for $lhs {
             type Output = $out;
 
@@ -57,15 +62,14 @@ macro_rules! _impl_binary_op_owned_borrowed {
                 let $lhs_i = self;
                 $body
             }
-                
         }
-    );
+    };
 }
 
 #[doc(hidden)]
 #[macro_export]
 macro_rules! _impl_binary_op_borrowed_owned {
-    ($ops_trait:ident, $ops_fn:ident, $lhs:ty, $rhs:ty, $out:ty, $lhs_i:ident, $rhs_i:ident, $body:block) => (
+    ($ops_trait:ident, $ops_fn:ident, $lhs:ty, $rhs:ty, $out:ty, $lhs_i:ident, $rhs_i:ident, $body:block) => {
         impl<'a> ops::$ops_trait<$rhs> for &'a $lhs {
             type Output = $out;
 
@@ -73,15 +77,14 @@ macro_rules! _impl_binary_op_borrowed_owned {
                 let $lhs_i = self;
                 $body
             }
-                
         }
-    );
+    };
 }
 
 #[doc(hidden)]
 #[macro_export]
 macro_rules! _impl_binary_op_borrowed_borrowed {
-    ($ops_trait:ident, $ops_fn:ident, $lhs:ty, $rhs:ty, $out:ty, $lhs_i:ident, $rhs_i:ident, $body:block) => (
+    ($ops_trait:ident, $ops_fn:ident, $lhs:ty, $rhs:ty, $out:ty, $lhs_i:ident, $rhs_i:ident, $body:block) => {
         impl<'a, 'b> ops::$ops_trait<&'a $rhs> for &'b $lhs {
             type Output = $out;
 
@@ -89,7 +92,6 @@ macro_rules! _impl_binary_op_borrowed_borrowed {
                 let $lhs_i = self;
                 $body
             }
-                
         }
-    );
+    };
 }
