@@ -1,8 +1,8 @@
 #[doc(hidden)]
 #[macro_export]
 macro_rules! _parse_unary_op {
-    (-, $($t:tt)+) => (_impl_unary_op_internal!(Neg, neg, $($t)+););
-    (!, $($t:tt)+) => (_impl_unary_op_internal!(Not, not, $($t)+););
+    (-, $($t:tt)+) => ($crate::_impl_unary_op_internal!(Neg, neg, $($t)+););
+    (!, $($t:tt)+) => ($crate::_impl_unary_op_internal!(Not, not, $($t)+););
 }
 
 #[doc(hidden)]

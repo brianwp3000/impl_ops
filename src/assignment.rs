@@ -1,16 +1,16 @@
 #[doc(hidden)]
 #[macro_export]
 macro_rules! _parse_assignment_op {
-    (+=, $($t:tt)+) => (_impl_assignment_op_internal!(AddAssign, add_assign, $($t)+););
-    (-=, $($t:tt)+) => (_impl_assignment_op_internal!(SubAssign, sub_assign, $($t)+););
-    (*=, $($t:tt)+) => (_impl_assignment_op_internal!(MulAssign, mul_assign, $($t)+););
-    (/=, $($t:tt)+) => (_impl_assignment_op_internal!(DivAssign, div_assign, $($t)+););
-    (%=, $($t:tt)+) => (_impl_assignment_op_internal!(RemAssign, rem_assign, $($t)+););
-    (&=, $($t:tt)+) => (_impl_assignment_op_internal!(BitAndAssign, bitand_assign, $($t)+););
-    (|=, $($t:tt)+) => (_impl_assignment_op_internal!(BitOrAssign, bitor_assign, $($t)+););
-    (^=, $($t:tt)+) => (_impl_assignment_op_internal!(BitXorAssign, bitxor_assign, $($t)+););
-    (<<=, $($t:tt)+) => (_impl_assignment_op_internal!(ShlAssign, shl_assign, $($t)+););
-    (>>=, $($t:tt)+) => (_impl_assignment_op_internal!(ShrAssign, shr_assign, $($t)+););
+    (+=, $($t:tt)+) => ($crate::_impl_assignment_op_internal!(AddAssign, add_assign, $($t)+););
+    (-=, $($t:tt)+) => ($crate::_impl_assignment_op_internal!(SubAssign, sub_assign, $($t)+););
+    (*=, $($t:tt)+) => ($crate::_impl_assignment_op_internal!(MulAssign, mul_assign, $($t)+););
+    (/=, $($t:tt)+) => ($crate::_impl_assignment_op_internal!(DivAssign, div_assign, $($t)+););
+    (%=, $($t:tt)+) => ($crate::_impl_assignment_op_internal!(RemAssign, rem_assign, $($t)+););
+    (&=, $($t:tt)+) => ($crate::_impl_assignment_op_internal!(BitAndAssign, bitand_assign, $($t)+););
+    (|=, $($t:tt)+) => ($crate::_impl_assignment_op_internal!(BitOrAssign, bitor_assign, $($t)+););
+    (^=, $($t:tt)+) => ($crate::_impl_assignment_op_internal!(BitXorAssign, bitxor_assign, $($t)+););
+    (<<=, $($t:tt)+) => ($crate::_impl_assignment_op_internal!(ShlAssign, shl_assign, $($t)+););
+    (>>=, $($t:tt)+) => ($crate::_impl_assignment_op_internal!(ShrAssign, shr_assign, $($t)+););
 }
 
 #[doc(hidden)]

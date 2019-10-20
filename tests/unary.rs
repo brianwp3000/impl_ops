@@ -1,9 +1,7 @@
 //#![feature(trace_macros)]
 //trace_macros!(true);
 
-#[macro_use]
-extern crate impl_ops;
-
+use impl_ops::{impl_op, impl_op_ex};
 use std::ops;
 
 mod kong {
