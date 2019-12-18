@@ -5,6 +5,8 @@
 [Latest Version]: https://img.shields.io/crates/v/impl_ops.svg
 [crates.io]: https://crates.io/crates/impl_ops
 
+**NOTICE: This crate is stable, but won't be receiving new features. For a more up-to-date version of this crate see [auto_ops](https://github.com/carbotaniuman/auto_ops).**
+
 Macros for easy operator overloading.
 
 [Documentation](https://docs.rs/impl_ops/)
@@ -44,4 +46,4 @@ fn main() {
 ```
 
 # Roadmap
-The syntax is essentially finished, but I still need to implement `Index`, `IndexMut`, `Deref`, and `DerefMut`. I'm already using this in a few personal projects, but I want to make sure it works in more real-world scenarios before committing to maintain a stable API. 
+This crate is stable but no longer receiving feature updates. Please see [auto_ops](https://github.com/carbotaniuman/auto_ops) for a more up-to-date fork of this crate.
